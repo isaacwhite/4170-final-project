@@ -2,6 +2,8 @@ TRP = {};
 TRP.oauth = "EJJLH0BUCOHLVG2NVX1Z0ZK1IKWYWWXJSQUVR2VBG4IYG00G";
 TRP.fsAPI = "https://api.foursquare.com/v2";
 TRP.currLoc = {lat: 40.7, lon: -74};
+TRP.searchOpen = false;
+TRP.loading = false;
 
 TRP.getDateString = function () {
     var dateNow = new Date();
@@ -141,7 +143,29 @@ TRP.getSuggestions = function (param) {
     getResults();
 }
 
-
+TRP.toggleSearchBox = function () {
+    if(!TRP.searchOpen){
+        if(!TRP.animating) {
+            TRP.animating = true;
+            $(".search-form").animate({'height':'100%'},400,function () {
+                $(".exit").animate({'opacity':1},250, function () {
+                    TRP.animating = false;
+                    TRP.searchOpen = true;
+                });
+            });
+        } //no else, just pretend it wasn't requested.
+    } else {
+        if(!TRP.animating) {
+            TRP.animating = true;
+            $(".exit").animate({'opacity':0},200,function () {
+                $(".search-form").animate({'height':'0%'},400, function () {
+                    TRP.animating = false;
+                    TRP.searchOpen = false;
+                });
+            });
+        }
+    }
+}
 TRP.getSearchResults = function (lat,lon,search,callback) {
 
     function getResults(search,lat,lon) {
@@ -156,13 +180,50 @@ TRP.indicateLoad = function (url) {
     console.log("Loading... (" + url + ")");
 }
 
+TRP.Venue.prototype.toHTML = function () {
+    // var returnString = "";
+    // function
+}
+
 //begin application
-var searchObj = {
-    callback: function (data) {
-        console.log(data);
-    },
-    search: "bars"
-};
+
+
+$(function() {
+    $(".add-item").click(function () {
+        TRP.toggleSearchBox();
+    });
+    $(".exit").click(function () {
+        TRP.toggleSearchBox();
+    });
+
+    var searchObj = {
+        callback: function (data) {
+            console.log(data);
+            TRP.loading = false;
+        }
+    };
+
+    $("#submit-button").click(function(e) {
+        if (TRP.loading === false) {
+            TRP.loading = true;
+            var search = $("#search-box").val();
+            if (search === "") {
+                $("#search-box").val("Please enter something to search");
+            } else if (search === "Please enter something to search") {
+                //do nothing
+            } else {
+                try {
+                    searchObj.search = search;
+                    TRP.getSuggestions(searchObj);
+                } catch(err) {
+                    console.warn(err);
+                }
+            };
+            
+        } 
+        e.preventDefault();
+    });
+})
 // TRP.getSuggestions(searchObj);
 // // delete searchObj.search;
 

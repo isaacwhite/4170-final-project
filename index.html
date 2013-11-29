@@ -26,8 +26,8 @@
                 <nav>
                     <h2 class="current-itin">My Itinerary</h2>
                     <ul>
-                        <li><a href="#">Share</a></li>
                         <li><a href="#">Save</a></li>
+                        <li><a href="#">Share</a></li>
                     </ul>
                 </nav>
             </header>
@@ -37,8 +37,44 @@
             <div class="main wrapper clearfix">
                 <div class="map-region">
                 </div>
-
                 <article>
+                    <div class='search-form'>
+                        <form>
+                            <div class='general-options'>
+                                <div class='search-box'>
+                                    <input type='search' name='searchbox' placeholder='Search for something.' id='search-box'>
+                                </div>
+                                <input type='submit' value='Search' id='submit-button'>
+                                <ul class="transit">
+                                    <li><input type='submit' value='Walking'id='walk-mode'></li>
+                                    <li><input type='submit' value='Public Transit' id='public-transit'></li>
+                                    <li><input type='submit' value='By Car' id='car-mode'></li>
+                                </ul>
+                            </div>
+                            <div class='advanced-search'>
+                                <div class='distance'>
+                                    <select name='distance' id='distance-choice'>
+                                        <option value='0.25'>0.25 mi</option>
+                                        <option value='0.5'>0.5 mi</option>
+                                        <option value='1'>1 mi</option>
+                                        <option value='2'>2 mi</option>
+                                        <option value='5'>5 mi</option>
+                                        <option value='10'>10 mi</option>
+                                        <option value='max'>City limits</option>
+                                    </select>
+                                </div>
+                                <div class='price'>
+                                    <input type='submit' value='$' id='1'>
+                                    <input type='submit' value='$$' id='2'>
+                                    <input type='submit' value='$$$' id='3'>
+                                    <input type='submit' value='$$$$' id ='4'>
+                                </div>
+                            </div>
+                        </form>
+                        <div class='exit'>
+                            <h4>Return to itinerary</h4>
+                        </div>
+                    </div>
                     <div class="start">
                         <h3>Start</h3>
                         <div class="endpoint"></div>

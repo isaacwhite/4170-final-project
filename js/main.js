@@ -3,7 +3,7 @@ TRP.oauth = "EJJLH0BUCOHLVG2NVX1Z0ZK1IKWYWWXJSQUVR2VBG4IYG00G";
 TRP.fsAPI = "https://api.foursquare.com/v2";
 TRP.currLoc = {lat: 40.7, lon: -74};
 
-TRP.getDateString = function() {
+TRP.getDateString = function () {
     var dateNow = new Date();
     var dateString = "" + 
         dateNow.getFullYear() + 
@@ -11,24 +11,24 @@ TRP.getDateString = function() {
         dateNow.getDate();
     return dateString;
 }
-TRP.Venue = function(prop) {
-    this.name = prop.name;
-    this.rating = prop.rating;
-    this.coord = prop.locInfo.coord;
-    this.address = prop.locInfo.address;
-    this.thumb = prop.thumbnail;
+TRP.Venue = function (prop) {
+    this.name     = prop.name;
+    this.rating   = prop.rating;
+    this.coord    = prop.locInfo.coord;
+    this.address  = prop.locInfo.address;
+    this.thumb    = prop.thumbnail;
     this.comments = prop.comments;
-    this.url = prop.url;
+    this.url      = prop.url;
 }
 
-TRP.Comment = function(prop) {
+TRP.Comment = function (prop) {
     this.text     = prop.text;
     this.uFirst   = prop.firstName;
     this.uLast    = prop.lastName;
     this.photoUrl = prop.photoUrl;
 }
 
-TRP.getSuggestions = function(param) {
+TRP.getSuggestions = function (param) {
 
     var lat = param.lat;
     var lon = param.lon;
@@ -142,7 +142,7 @@ TRP.getSuggestions = function(param) {
 }
 
 
-TRP.getSearchResults = function(lat,lon,search,callback) {
+TRP.getSearchResults = function (lat,lon,search,callback) {
 
     function getResults(search,lat,lon) {
         var endpoint = TRP.fsAPI + "/venues/search";
@@ -150,7 +150,7 @@ TRP.getSearchResults = function(lat,lon,search,callback) {
     }
 }
 
-TRP.indicateLoad = function(url) {
+TRP.indicateLoad = function (url) {
     //this is a function that can be used for more complex ui info
     //for now just console log "loading"
     console.log("Loading... (" + url + ")");
@@ -158,14 +158,14 @@ TRP.indicateLoad = function(url) {
 
 //begin application
 var searchObj = {
-    callback: function(data) {
+    callback: function (data) {
         console.log(data);
     },
     search: "bars"
 };
-TRP.getSuggestions(searchObj);
-// delete searchObj.search;
-
 // TRP.getSuggestions(searchObj);
-searchObj.search = "museums";
-TRP.getSuggestions(searchObj);
+// // delete searchObj.search;
+
+// // TRP.getSuggestions(searchObj);
+// searchObj.search = "museums";
+// TRP.getSuggestions(searchObj);

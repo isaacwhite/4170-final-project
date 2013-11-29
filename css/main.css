@@ -118,7 +118,6 @@ body {
 
 
 .general-options {
-    margin-top: 1rem;
     position: relative;
 }
 #search-box {
@@ -205,12 +204,12 @@ ul {
     top: 0;
     left: 0;
     padding: 0 1rem;
-    overflow: hidden;
+    overflow-y: auto;
 }
 
 .exit {
     position: absolute;
-    bottom:0;
+    bottom:1rem;
     left:0;
     width:100%;
     background-color:red;
@@ -220,4 +219,41 @@ ul {
 
 .exit:hover {
     cursor: pointer;
+}
+
+.reference {
+    position: relative;
+    min-height:100%;
+    padding: 1rem 0 6rem;
+}
+
+.reference .venue {
+    margin-top: .5rem;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+    padding-top: 3rem;
+}
+.thumb {
+    height: 10rem;
+    background-repeat: no-repeat;
+    background-size: contain;
+    float: right;
+    width: 50%;
+    background-position: right;
+}
+.reference .venue h3 {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    background-color: rgb(100, 100, 100);
+    left: 0;
+    margin: 0;
+    color: white;
+    padding: .5rem;
+}
+blockquote {
+    margin-left: 0;
+    line-height: 1.4;
+    font-style: italic;
 }

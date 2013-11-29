@@ -181,8 +181,62 @@ TRP.indicateLoad = function (url) {
 }
 
 TRP.Venue.prototype.toHTML = function () {
-    // var returnString = "";
-    // function
+    var returnString = "";
+    var that = this;
+    
+    function commentHTML() {
+        var commentsHTML = [];
+        var commentString;
+        for (var i=0; i< that.comments.length; i++) {
+            commentString =  "<div class='comment'>";
+            commentString += "<blockquote";
+            if(that.comments[i].uFirst=== "HISTORY") {
+                commentString += " class='history'";
+            }
+            commentString += ">" + that.comments[i].text + "</blockquote>";
+            if(that.comments[i].uFirst !== "HISTORY") {
+                commentString += "<p class='author'>-" + that.comments[i].uFirst;
+                if (that.comments[i].uLast) {
+                    commentString += " " + that.comments[i].uLast; 
+                }
+                commentString += "</p>";
+            }
+            commentString += "</div>"
+            commentsHTML.push(commentString);
+        }
+        return commentsHTML;
+    }
+
+    function venueHTML() {
+        var venueString = "<div class='venue'>";
+        var titleString = "<h3>" + that.name + "</h3>";
+        var htmlAddress = that.address;
+        if(that.url){
+            venueString += "<a href=\"" + that.url + "\">";
+            venueString += titleString + "</a>";
+        } else {
+            venueString += titleString;
+        }
+        if(that.thumb) {
+            venueString += "<div class='thumb' style=\"background-image: ";
+            venueString += "url('" + that.thumb + "')\"></div>";
+            console.log(that.thumb);
+        }
+        if(that.rating){
+            venueString += "<div class='rating'>" + that.rating + "/10</div>";
+        }
+        if(that.comments.length !== 0) {
+            var commentsHTML = commentHTML();
+            venueString += commentsHTML[0];
+        }
+        htmlAddress = htmlAddress.replace("\n","<br>");
+        venueString += "<div class='address'>" + htmlAddress + "</div>";
+        venueString += "</div>"
+
+        return venueString;
+    }
+    
+    return venueHTML();
 }
 
 //begin application
@@ -198,7 +252,10 @@ $(function() {
 
     var searchObj = {
         callback: function (data) {
-            console.log(data);
+            for (var i = 0; i< data.length; i++) {
+                var thisResult = data[i].toHTML();
+                $(".search-form .reference").append(thisResult);
+            }
             TRP.loading = false;
         }
     };
@@ -209,7 +266,9 @@ $(function() {
             var search = $("#search-box").val();
             if (search === "") {
                 $("#search-box").val("Please enter something to search");
+                TRP.loading = false;
             } else if (search === "Please enter something to search") {
+                TRP.loading = false;
                 //do nothing
             } else {
                 try {
@@ -224,9 +283,3 @@ $(function() {
         e.preventDefault();
     });
 })
-// TRP.getSuggestions(searchObj);
-// // delete searchObj.search;
-
-// // TRP.getSuggestions(searchObj);
-// searchObj.search = "museums";
-// TRP.getSuggestions(searchObj);

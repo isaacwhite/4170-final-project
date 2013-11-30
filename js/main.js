@@ -25,14 +25,12 @@ TRP.Venue = function (prop) {
     this.url      = prop.url;
     this.id       = prop.id;
 }
-
 TRP.Comment = function (prop) {
     this.text     = prop.text;
     this.uFirst   = prop.firstName;
     this.uLast    = prop.lastName;
     this.photoUrl = prop.photoUrl;
 }
-
 TRP.getSuggestions = function (param) {
 
     var lat = param.lat;
@@ -151,7 +149,6 @@ TRP.getSuggestions = function (param) {
     }
     getResults();
 }
-
 TRP.toggleSearchBox = function () {
     if(!TRP.searchOpen){
         if(!TRP.animating) {
@@ -252,8 +249,6 @@ TRP.Venue.prototype.toHTML = function () {
 }
 
 //begin application
-
-
 $(function() {
     $(".add-item").click(function () {
         TRP.toggleSearchBox();
@@ -304,12 +299,7 @@ $(function() {
         } 
         e.preventDefault();
     });
-
-    // $(".venue .add-venue").click(function() {
-    //     console.log("click event detected");
-    //     $(this).closest(".venue").addClass("added");
-    // });
-
+    
      $(document).on('click', '.venue .add-venue', function() { // Make your changes here
         console.log("clicked on the add button!");
         var venueObj = $(this).closest(".venue");

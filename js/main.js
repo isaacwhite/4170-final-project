@@ -4,6 +4,8 @@ TRP.fsAPI = "https://api.foursquare.com/v2";
 TRP.currLoc = {lat: 40.7, lon: -74};
 TRP.searchOpen = false;
 TRP.loading = false;
+TRP.venueMap = {};//hashmap
+TRP.itinerary = [];
 
 TRP.getDateString = function () {
     var dateNow = new Date();
@@ -21,6 +23,7 @@ TRP.Venue = function (prop) {
     this.thumb    = prop.thumbnail;
     this.comments = prop.comments;
     this.url      = prop.url;
+    this.id       = prop.id;
 }
 
 TRP.Comment = function (prop) {
@@ -104,11 +107,13 @@ TRP.getSuggestions = function (param) {
     }
 
     function processData(data) {
-        // console.log(data);
-        var processedData = [];
+        console.log(data);
+        var processedData = {}; //hash map by id
         var statusCode = data.meta.code;
         var resultCount = data.response.totalResults;
         var rawResults = data.response.groups[0].items;
+        var venuesByRating = [];
+        var callbackObj;
 
         // console.log(statusCode);
         // console.log(resultCount);
@@ -123,23 +128,27 @@ TRP.getSuggestions = function (param) {
             var location = processLocation(thisResult.venue.location);
             var tips = feedback.tips;
             var thumb = feedback.thumb;
-
+            var id = thisResult.venue.id;
             var venueData = {
                 'name': name,
                 'rating': rating,
                 'url': url,
                 'thumbnail' : thumb,
                 'locInfo': location,
-                'comments': tips
+                'comments': tips,
+                'id' : id
             }
-
-            processedData.push(new TRP.Venue(venueData));
+            venuesByRating.push(id);
+            processedData[id] = new TRP.Venue(venueData);
         }
         //designed to be used asynchronously
         //calls callback passed to getResults.
-        callback(processedData);
+        callbackObj = {
+            venueSort: venuesByRating,
+            venueMap : processedData
+        }
+        callback(callbackObj);
     }
-
     getResults();
 }
 
@@ -187,10 +196,10 @@ TRP.Venue.prototype.toHTML = function () {
     function commentHTML() {
         var commentsHTML = [];
         var commentString;
-        for (var i=0; i< that.comments.length; i++) {
+        for (var i = 0; i < that.comments.length; i++) {
             commentString =  "<div class='comment'>";
             commentString += "<blockquote";
-            if(that.comments[i].uFirst=== "HISTORY") {
+            if(that.comments[i].uFirst === "HISTORY") {
                 commentString += " class='history'";
             }
             commentString += ">" + that.comments[i].text + "</blockquote>";
@@ -208,8 +217,10 @@ TRP.Venue.prototype.toHTML = function () {
     }
 
     function venueHTML() {
-        var venueString = "<div class='venue'>";
+        var venueString = "<div class='venue"
+        venueString += " id-" + that.id + "'>";
         var titleString = "<h3>" + that.name + "</h3>";
+        var addButton = "<div class='add-venue'><span>Add venue</span></div>";
         var htmlAddress = that.address;
         if(that.url){
             venueString += "<a href=\"" + that.url + "\">";
@@ -217,6 +228,7 @@ TRP.Venue.prototype.toHTML = function () {
         } else {
             venueString += titleString;
         }
+        venueString += addButton;
         if(that.thumb) {
             venueString += "<div class='thumb' style=\"background-image: ";
             venueString += "url('" + that.thumb + "')\"></div>";
@@ -252,10 +264,20 @@ $(function() {
 
     var searchObj = {
         callback: function (data) {
-            for (var i = 0; i< data.length; i++) {
-                var thisResult = data[i].toHTML();
-                $(".search-form .reference").append(thisResult);
+            var orderedIDs = data.venueSort;
+            var venues = data.venueMap;
+            var thisID;
+            var thisVenue;
+            var thisHTML;
+            console.log("callback called")
+            for (var i = 0; i < orderedIDs.length; i++) {
+                thisID = orderedIDs[i];
+                thisVenue = venues[thisID];
+                TRP.venueMap[thisID] = thisVenue;
+                thisHTML = thisVenue.toHTML();
+                $(".search-form .reference").append(thisHTML);
             }
+            console.log(data);
             TRP.loading = false;
         }
     };
@@ -281,5 +303,21 @@ $(function() {
             
         } 
         e.preventDefault();
+    });
+
+    // $(".venue .add-venue").click(function() {
+    //     console.log("click event detected");
+    //     $(this).closest(".venue").addClass("added");
+    // });
+
+     $(document).on('click', '.venue .add-venue', function() { // Make your changes here
+        console.log("clicked on the add button!");
+        var venueObj = $(this).closest(".venue");
+        var mapID = venueObj[0].classList[1];
+        mapID = mapID.substring(3);
+        console.log(mapID);
+        TRP.itinerary.push(TRP.venueMap[mapID]);
+        venueObj.addClass("added");
+        console.log(TRP.itinerary);
     });
 })

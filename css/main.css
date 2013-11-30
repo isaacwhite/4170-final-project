@@ -257,3 +257,70 @@ blockquote {
     line-height: 1.4;
     font-style: italic;
 }
+
+.add-venue {
+    overflow: hidden;
+    width: 1.5rem;
+    height: 1.5em;
+    background-color: white;
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+    border-radius: .5rem;
+    transition: all .5s;
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+
+    /* No support for these yet, use at own risk */
+    -o-user-select: none;
+    user-select: none;  
+}
+.add-venue:hover {
+    cursor: pointer;
+    width:9rem;
+}
+.add-venue span {
+    display:block;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    white-space:nowrap;
+    text-transform:uppercase;
+    color: black;
+    text-decoration: underline;
+    padding: .25rem;
+    padding-left: 2rem;
+    transition: all .5s;
+}
+.add-venue span:hover {
+    opacity: 1;
+}
+
+.add-venue:before {
+    position: absolute;
+    top: 0rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: block;
+    background-color: rgb(174, 180, 250);
+    content: '+';
+    line-height: 1.5rem;
+    text-align: center;
+    font-weight: bold;
+}
+.venue.added:before {
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background-color: black;
+    content: 'Added to itinerary';
+    font-size: 2rem;
+    color:white;
+    padding-top:4rem;
+    z-index:2;
+    opacity: .8;
+    text-align: center;
+}

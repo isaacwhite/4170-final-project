@@ -311,3 +311,40 @@ $(function() {
         console.log(TRP.itinerary);
     });
 })
+
+
+function render_map() {
+  var mapOptions = {
+    zoom: 12,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  };
+  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+  // Try HTML5 geolocation
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var lat=position.coords.latitude;
+      var lon= position.coords.longitude;
+      var initial_loc = new google.maps.LatLng(lat, lon);
+
+      map.setCenter(initial_loc);
+    }, function() {
+      geolocationErr();
+    });
+  } else {
+    // Browser doesn't support Geolocation
+    geolocationErr();
+  }
+  
+  //set to default if geolocation fails
+  function geolocationErr() {
+   var lon_init=TRP.currLoc.lon;
+   var lat_init=TRP.currLoc.lat;
+   var init_map = {
+     map: map,
+     position: new google.maps.LatLng(lat_init, lon_init)
+   };
+  initial_loc=init_map.position;
+  map.setCenter(initial_loc);
+}
+} google.maps.event.addDomListener(window, 'load', render_map);

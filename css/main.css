@@ -153,6 +153,7 @@ body {
     top:5rem;
     bottom:0;
     width:70%;
+    display:none;
 }
 
 ul {
@@ -323,4 +324,8 @@ blockquote {
     z-index:2;
     opacity: .8;
     text-align: center;
+}
+
+#map-canvas{
+    height:100%;
 }

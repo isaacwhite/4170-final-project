@@ -1,7 +1,7 @@
 TRP = {};
 TRP.oauth = "EJJLH0BUCOHLVG2NVX1Z0ZK1IKWYWWXJSQUVR2VBG4IYG00G";
 TRP.fsAPI = "https://api.foursquare.com/v2";
-TRP.currLoc = {lat: 40.7, lon: -74};
+TRP.currLoc = {lat: 40.7588889, lon: -73.9851533};
 TRP.searchOpen = false;
 TRP.loading = false;
 TRP.venueMap = {};//hashmap

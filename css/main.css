@@ -329,3 +329,19 @@ blockquote {
 #map-canvas{
     height:100%;
 }
+
+#infoWindow{
+    height:3rem;
+    overflow:none;
+}
+
+.labels {
+     color: black;
+     background-color: white;
+     font-family: "Lucida Grande", "Arial", sans-serif;
+     font-size: 10px;
+     font-weight: bold;
+     text-align: center;
+     width: 75px;     
+     border: 1px solid gray;
+}

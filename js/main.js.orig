@@ -1,7 +1,7 @@
 TRP = {};
 TRP.oauth = "EJJLH0BUCOHLVG2NVX1Z0ZK1IKWYWWXJSQUVR2VBG4IYG00G";
 TRP.fsAPI = "https://api.foursquare.com/v2";
-TRP.currLoc = {lat: 40.7, lon: -74};
+TRP.currLoc = {lat: 40.7588889, lon: -73.9851533};
 TRP.searchOpen = false;
 TRP.loading = false;
 TRP.venueMap = {};//hashmap
@@ -347,6 +347,28 @@ function render_map() {
       initial_loc=init_map.position;
       add_marker(map, lat, lon, 'Default NYC location');
       map.setCenter(initial_loc);
+<<<<<<< HEAD
+    }, function() {
+      geolocationErr();
+    });
+  } else {
+    // Browser doesn't support Geolocation
+    geolocationErr();
+  }
+  
+  //set to default if geolocation fails
+  function geolocationErr() {
+   var lon_init=TRP.currLoc.lon;
+   var lat_init=TRP.currLoc.lat;
+   var init_map = {
+     map: map,
+     position: new google.maps.LatLng(lat_init, lon_init)
+   };
+  initial_loc=init_map.position;
+  map.setCenter(initial_loc);
+}
+} google.maps.event.addDomListener(window, 'load', render_map);
+=======
 
     }
 
@@ -375,3 +397,4 @@ function render_map() {
       });
     }
 } google.maps.event.addDomListener(window, 'load', render_map);
+>>>>>>> ffa3c55b778eedb087c3e06043c33142cb4e1ab1

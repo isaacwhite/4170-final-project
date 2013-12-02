@@ -1,7 +1,7 @@
 TRP = {};
 TRP.oauth = "EJJLH0BUCOHLVG2NVX1Z0ZK1IKWYWWXJSQUVR2VBG4IYG00G";
 TRP.fsAPI = "https://api.foursquare.com/v2";
-TRP.currLoc = {lat: 40.7, lon: -74};
+TRP.currLoc = {lat: 40.7588889, lon: -73.9851533};
 TRP.searchOpen = false;
 TRP.loading = false;
 TRP.venueMap = {};//hashmap
@@ -322,39 +322,66 @@ $(function() {
     });
 })
 
-
+//Google Maps functions
 function render_map() {
-  var mapOptions = {
-    zoom: 12,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-  };
-  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    var mapOptions = {
+        zoom: 12,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+      };
+      map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
-  // Try HTML5 geolocation
-  if(navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      var lat=position.coords.latitude;
-      var lon= position.coords.longitude;
-      var initial_loc = new google.maps.LatLng(lat, lon);
-
+      // Try HTML5 geolocation
+    if(navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var lat=position.coords.latitude;
+          var lon= position.coords.longitude;
+          var initial_loc = new google.maps.LatLng(lat, lon);
+          add_marker(map, lat, lon, '<div id= "infoWindow">Your current location</div>');
+          map.setCenter(initial_loc);
+        }, function() {
+          geolocationErr();
+        });
+    } else {
+        // Browser doesn't support Geolocation
+        geolocationErr();
+      }
+      
+      //set to default if geolocation fails
+    function geolocationErr() {
+       var lon=TRP.currLoc.lon;
+       var lat=TRP.currLoc.lat;
+       var init_map = {
+         map: map,
+         position: new google.maps.LatLng(lat, lon)
+       };
+      initial_loc=init_map.position;
+      add_marker(map, lat, lon, 'Default NYC location');
       map.setCenter(initial_loc);
-    }, function() {
-      geolocationErr();
-    });
-  } else {
-    // Browser doesn't support Geolocation
-    geolocationErr();
-  }
-  
-  //set to default if geolocation fails
-  function geolocationErr() {
-   var lon_init=TRP.currLoc.lon;
-   var lat_init=TRP.currLoc.lat;
-   var init_map = {
-     map: map,
-     position: new google.maps.LatLng(lat_init, lon_init)
-   };
-  initial_loc=init_map.position;
-  map.setCenter(initial_loc);
-}
+
+    }
+
+    function add_marker(map, lat, lon, html){
+          // var marker = new google.maps.Marker({
+          //  position: new google.maps.LatLng(lat, lon),
+          //  map: map
+          // });
+     var marker = new MarkerWithLabel({
+       position: new google.maps.LatLng(lat,lon),
+       draggable: false,
+       raiseOnDrag: false,
+       map: map,
+       labelContent: html,
+       labelAnchor: new google.maps.Point(22, 0),
+       labelClass: "labels", // the CSS class for the label
+       labelStyle: {opacity: 0.75}
+     });
+
+          marker.infoWindow= new google.maps.InfoWindow({
+            content:html
+          });
+          //should the infoWindow be kept open?
+      google.maps.event.addListener(marker, 'click', function() {
+        marker.infoWindow.open(map,marker);
+      });
+    }
 } google.maps.event.addDomListener(window, 'load', render_map);

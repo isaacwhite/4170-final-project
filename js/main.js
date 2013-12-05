@@ -277,7 +277,7 @@ $(function() {
             console.log(data);
             //place search results on map
             placeSearchResults(data);
-            
+
             TRP.loading = false;
         }
     };
@@ -320,7 +320,7 @@ $(function() {
 
 $(".exit").click(function(){
     clearMarkers();
-    placeItinerary();
+    drawItinerary();
 
 });
 
@@ -338,7 +338,7 @@ function render_map() {
           TRP.currLoc.lat=position.coords.latitude;
           TRP.currLoc.lon= position.coords.longitude;
           var initial_loc = new google.maps.LatLng(lat, lon);
-          TRP.currLoc=add_marker( lat, lon, '<div id= "infoWindow">Your current location</div>');
+          TRP.currLoc=add_marker( lat, lon, 'Your current location', "blue-dot");
           TRP.map.setCenter(initial_loc);
         }, function() {
           geolocationErr();
@@ -356,26 +356,28 @@ function render_map() {
          position: new google.maps.LatLng(lat, lon)
        };
       initial_loc=init_map.position;
-      add_marker(lat, lon, 'Default NYC location');
+      add_marker(lat, lon, 'Default NYC location', "blue-dot");
       TRP.map.setCenter(initial_loc);
 
     }
 } google.maps.event.addDomListener(window, 'load', render_map);
 
-function add_marker(lat, lon, html){
+function add_marker(lat, lon, name, markerType){
       var marker = new MarkerWithLabel({
         position: new google.maps.LatLng(lat,lon),
         draggable: false,
         raiseOnDrag: false,
         map: TRP.map,
-        labelContent: html,
+        labelContent: name,
         labelAnchor: new google.maps.Point(22, 0),
         labelClass: "labels", // the CSS class for the label
         labelStyle: {opacity: 0.75}
      });
+    setMarkerType(marker,markerType);
+
     var maxIndex=google.maps.Marker.MAX_ZINDEX;
        marker.infoWindow= new google.maps.InfoWindow({
-       content:html  
+       content:name  
     });
     //should the infoWindow be kept open?
     google.maps.event.addListener(marker, 'click', function() {
@@ -402,14 +404,14 @@ function placeSearchResults(results){
 
     clearMarkers();
 
-    add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location');
+    add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location', "blue-dot");
     for (var i in keysArray){
         var key=keysArray[i];
         var locationObj=results.venueMap[key];
         var lat= locationObj.coord.lat;
         var lon= locationObj.coord.lon;
         var name= locationObj.name;
-        add_marker(lat, lon, name);
+        add_marker(lat, lon, name, "yellow");
     }
 }
 function clearMarkers(){
@@ -421,14 +423,63 @@ function clearMarkers(){
          TRP.markers.pop();
     }       
 }
-//this will change
-function placeItinerary(){
-    add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location');
-    for (var k in TRP.itinerary){
-        var venue=TRP.itinerary[k];
-        var lat =venue.coord.lat;
-        var lon = venue.coord.lon;
-        var name= venue.name;
-        add_marker(lat, lon, name);
+
+function drawItinerary(){
+// directions code modified from https://developers.google.com/maps/documentation/javascript/directions
+    var destinationVenue=TRP.itinerary[TRP.itinerary.length-1];
+    var destination= new google.maps.LatLng(destinationVenue.coord.lat, destinationVenue.coord.lon);
+    var origin= new google.maps.LatLng(TRP.currLoc.lat, TRP.currLoc.lon);
+    var waypoints=[];
+    for (var i=0; i<TRP.itinerary.length-1; i++){
+        var venue=TRP.itinerary[i];
+        var waypoint= new google.maps.LatLng(venue.coord.lat, venue.coord.lon);
+         waypoints.push({
+          location:waypoint,
+          stopover:true
+      });
+
     }
+    directionsDisplay = new google.maps.DirectionsRenderer();
+    directionsDisplay.setMap(TRP.map);
+    var directionsService = new google.maps.DirectionsService();
+
+    var request = {
+        origin: origin,
+        destination: destination,
+        waypoints: waypoints,
+        optimizeWaypoints: true,
+        travelMode: google.maps.TravelMode.WALKING,
+       unitSystem: google.maps.UnitSystem.IMPERIAL
+    };
+    directionsService.route(request, function(response, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        directionsDisplay.setDirections(response);
+      }
+    });
+
+    // add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location', "blue-dot");
+    // for (var k in TRP.itinerary){
+    //     var venue=TRP.itinerary[k];
+    //     var lat =venue.coord.lat;
+    //     var lon = venue.coord.lon;
+    //     var name= venue.name;
+    //     add_marker(lat, lon, name, "yellow");
+    // }
+}
+
+function setMarkerType(marker, markerType){
+    switch (markerType){
+        case "blue-dot":
+            marker.setIcon('https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png');
+            break;
+        case "yellow":
+            marker.setIcon('https://maps.gstatic.com/mapfiles/ms2/micons/yellow.png');
+            break;
+        case "red-pushpin":
+            marker.setIcon('https://maps.gstatic.com/mapfiles/ms2/micons/red-pushpin.png');
+            break;
+        default:
+            marker.setIcon('https://maps.gstatic.com/mapfiles/ms2/micons/yellow.png');
+    }    
+
 }

@@ -277,8 +277,7 @@ $(function() {
             console.log(data);
             //place search results on map
             placeSearchResults(data);
-            //add_marker(40.7588889,-73.98,'bye');
-
+            
             TRP.loading = false;
         }
     };
@@ -318,6 +317,13 @@ $(function() {
     });
 })
 
+
+$(".exit").click(function(){
+    clearMarkers();
+    placeItinerary();
+
+});
+
 //Google Maps functions
 function render_map() {
     var mapOptions = {
@@ -329,10 +335,10 @@ function render_map() {
       // Try HTML5 geolocation
     if(navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-          var lat=position.coords.latitude;
-          var lon= position.coords.longitude;
+          TRP.currLoc.lat=position.coords.latitude;
+          TRP.currLoc.lon= position.coords.longitude;
           var initial_loc = new google.maps.LatLng(lat, lon);
-          add_marker( lat, lon, '<div id= "infoWindow">Your current location</div>');
+          TRP.currLoc=add_marker( lat, lon, '<div id= "infoWindow">Your current location</div>');
           TRP.map.setCenter(initial_loc);
         }, function() {
           geolocationErr();
@@ -389,36 +395,40 @@ function add_marker(lat, lon, html){
 
 function placeSearchResults(results){
     var keysArray=results.venueSort;
-    console.log(" MARKERS TRIP MARKERS BEFORE");
-      console.log(TRP.markers.length);
-      console.log(TRP.markers);
+    //console.log(" MARKERS TRIP MARKERS BEFORE");
+      //console.log(TRP.markers.length);
+     // console.log(TRP.markers);
     TRP.map.setZoom(16);
 
     clearMarkers();
-        console.log(" MARKERS TRIP MARKERS AFTER");
-      console.log(TRP.markers.length);
-      console.log(TRP.markers);
+
+    add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location');
     for (var i in keysArray){
         var key=keysArray[i];
         var locationObj=results.venueMap[key];
         var lat= locationObj.coord.lat;
         var lon= locationObj.coord.lon;
         var name= locationObj.name;
-       // console.log(locationObj.name);
         add_marker(lat, lon, name);
     }
-        console.log(TRP.markers);
 }
 function clearMarkers(){
-    //console.log(TRP.markers.length);
     for (var j =0; j<TRP.markers.length; j++){
         TRP.markers[j].setMap(null);
     
     }
      for (var markers in TRP.markers){
          TRP.markers.pop();
-    
+    }       
+}
+//this will change
+function placeItinerary(){
+    add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location');
+    for (var k in TRP.itinerary){
+        var venue=TRP.itinerary[k];
+        var lat =venue.coord.lat;
+        var lon = venue.coord.lon;
+        var name= venue.name;
+        add_marker(lat, lon, name);
     }
-
-       
 }

@@ -6,6 +6,8 @@ TRP.searchOpen = false;
 TRP.loading = false;
 TRP.venueMap = {};//hashmap
 TRP.itinerary = [];
+TRP.map;
+TRP.markers=[];
 
 TRP.getDateString = function () {
     var dateNow = new Date();
@@ -273,6 +275,10 @@ $(function() {
                 $(".search-form .reference").append(thisHTML);
             }
             console.log(data);
+            //place search results on map
+            placeSearchResults(data);
+            //add_marker(40.7588889,-73.98,'bye');
+
             TRP.loading = false;
         }
     };
@@ -318,7 +324,7 @@ function render_map() {
         zoom: 12,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
-      map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+      TRP.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
       // Try HTML5 geolocation
     if(navigator.geolocation) {
@@ -326,8 +332,8 @@ function render_map() {
           var lat=position.coords.latitude;
           var lon= position.coords.longitude;
           var initial_loc = new google.maps.LatLng(lat, lon);
-          add_marker(map, lat, lon, '<div id= "infoWindow">Your current location</div>');
-          map.setCenter(initial_loc);
+          add_marker( lat, lon, '<div id= "infoWindow">Your current location</div>');
+          TRP.map.setCenter(initial_loc);
         }, function() {
           geolocationErr();
         });
@@ -335,43 +341,84 @@ function render_map() {
         // Browser doesn't support Geolocation
         geolocationErr();
       }
-      
       //set to default if geolocation fails
     function geolocationErr() {
        var lon=TRP.currLoc.lon;
        var lat=TRP.currLoc.lat;
        var init_map = {
-         map: map,
+         map: TRP.map,
          position: new google.maps.LatLng(lat, lon)
        };
       initial_loc=init_map.position;
-      add_marker(map, lat, lon, 'Default NYC location');
-      map.setCenter(initial_loc);
+      add_marker(lat, lon, 'Default NYC location');
+      TRP.map.setCenter(initial_loc);
 
-    }
-
-    function add_marker(map, lat, lon, html){
-          // var marker = new google.maps.Marker({
-          //  position: new google.maps.LatLng(lat, lon),
-          //  map: map
-          // });
-     var marker = new MarkerWithLabel({
-       position: new google.maps.LatLng(lat,lon),
-       draggable: false,
-       raiseOnDrag: false,
-       map: map,
-       labelContent: html,
-       labelAnchor: new google.maps.Point(22, 0),
-       labelClass: "labels", // the CSS class for the label
-       labelStyle: {opacity: 0.75}
-     });
-
-          marker.infoWindow= new google.maps.InfoWindow({
-            content:html
-          });
-          //should the infoWindow be kept open?
-      google.maps.event.addListener(marker, 'click', function() {
-        marker.infoWindow.open(map,marker);
-      });
     }
 } google.maps.event.addDomListener(window, 'load', render_map);
+
+function add_marker(lat, lon, html){
+      var marker = new MarkerWithLabel({
+        position: new google.maps.LatLng(lat,lon),
+        draggable: false,
+        raiseOnDrag: false,
+        map: TRP.map,
+        labelContent: html,
+        labelAnchor: new google.maps.Point(22, 0),
+        labelClass: "labels", // the CSS class for the label
+        labelStyle: {opacity: 0.75}
+     });
+    var maxIndex=google.maps.Marker.MAX_ZINDEX;
+       marker.infoWindow= new google.maps.InfoWindow({
+       content:html  
+    });
+    //should the infoWindow be kept open?
+    google.maps.event.addListener(marker, 'click', function() {
+    marker.infoWindow.open(TRP.map,marker);
+    maxIndex++;
+    //don't know if we want this
+    marker.setZIndex(maxIndex);
+  });
+    google.maps.event.addListener(marker, 'mouseover', function(){
+        maxIndex++;
+        //don't know if we want this
+        marker.setZIndex(maxIndex);
+    })
+
+    TRP.markers.push(marker);
+}
+
+function placeSearchResults(results){
+    var keysArray=results.venueSort;
+    console.log(" MARKERS TRIP MARKERS BEFORE");
+      console.log(TRP.markers.length);
+      console.log(TRP.markers);
+    TRP.map.setZoom(16);
+
+    clearMarkers();
+        console.log(" MARKERS TRIP MARKERS AFTER");
+      console.log(TRP.markers.length);
+      console.log(TRP.markers);
+    for (var i in keysArray){
+        var key=keysArray[i];
+        var locationObj=results.venueMap[key];
+        var lat= locationObj.coord.lat;
+        var lon= locationObj.coord.lon;
+        var name= locationObj.name;
+       // console.log(locationObj.name);
+        add_marker(lat, lon, name);
+    }
+        console.log(TRP.markers);
+}
+function clearMarkers(){
+    //console.log(TRP.markers.length);
+    for (var j =0; j<TRP.markers.length; j++){
+        TRP.markers[j].setMap(null);
+    
+    }
+     for (var markers in TRP.markers){
+         TRP.markers.pop();
+    
+    }
+
+       
+}

@@ -251,7 +251,7 @@ TRP.Venue.prototype.toHTML = function () {
 }
 
 //begin application
-$(function() {
+$( function () {
     $(".add-item").click(function () {
         TRP.toggleSearchBox();
     });
@@ -318,7 +318,7 @@ $(function() {
 })
 
 
-$(".exit").click(function(){
+$(".exit").click( function (){
     clearMarkers();
     drawItinerary();
 
@@ -375,8 +375,8 @@ function add_marker(lat, lon, name, markerType){
      });
     setMarkerType(marker,markerType);
 
-    var maxIndex=google.maps.Marker.MAX_ZINDEX;
-       marker.infoWindow= new google.maps.InfoWindow({
+    var maxIndex = google.maps.Marker.MAX_ZINDEX;
+       marker.infoWindow = new google.maps.InfoWindow({
        content:name  
     });
     //should the infoWindow be kept open?
@@ -396,7 +396,7 @@ function add_marker(lat, lon, name, markerType){
 }
 
 function placeSearchResults(results){
-    var keysArray=results.venueSort;
+    var keysArray = results.venueSort;
     //console.log(" MARKERS TRIP MARKERS BEFORE");
       //console.log(TRP.markers.length);
      // console.log(TRP.markers);
@@ -453,6 +453,7 @@ function drawItinerary(){
     };
     directionsService.route(request, function(response, status) {
       if (status == google.maps.DirectionsStatus.OK) {
+        console.log(response);
         directionsDisplay.setDirections(response);
       }
     });

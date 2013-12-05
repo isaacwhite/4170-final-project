@@ -1,24 +1,18 @@
-var filesystem = null;
-var fileList = document.getElementById('file-list'); //file-list is a div where we can display all the files. 
 
+var filesystem;
 
-window.onload = function() {
-
+window.onload = function () {
   window.requestFileSystem = window.requestFileSystem ||
                              window.webkitRequestFileSystem;
-
   function initFileSystem() {
     navigator.webkitPersistentStorage.requestQuota(1024 * 1024 * 5,
-      function(grantedSize) {
-
+      function (grantedSize) {
         window.requestFileSystem(window.PERSISTENT, grantedSize, function(fs) {
-
           filesystem = fs;
         }, errorHandler);
-
-      }, errorHandler);
+      }, 
+    errorHandler);
   }
-
   if (window.requestFileSystem) {
     initFileSystem();
   } else {
@@ -26,30 +20,24 @@ window.onload = function() {
   }
 };
 
-
-function saveItinerary() {
+function saveItinerary(contentString) {
 	
 	//supply the filename and filecontent here
-	var filename = "some file name";
-    var content = "some random content";
+	var filename = "TrippyItineraries.txt";
+  var content = [];
+  content.push(contentString);
     	
-  filesystem.root.getFile(filename, {create: true}, function(fileEntry) {
-
-    fileEntry.createWriter(function(fileWriter) {
-    	
-      fileWriter.onerror = function(e) {
+  filesystem.root.getFile(filename, {create: true}, function (fileEntry) {
+    fileEntry.createWriter(function (fileWriter) {
+      fileWriter.onerror = function (e) {
         console.log('Write error: ' + e.toString());
         alert('Error in saving file');
       };
-
-      var contentBlob = new Blob([content], {type: 'text/plain'});
-
+      var contentBlob = new Blob(content, {type: 'text/plain'});
       fileWriter.write(contentBlob);
-
     }, errorHandler);
-
   }, errorHandler);
-};
+}
 
 function errorHandler(error) {
     var message = '';
@@ -76,15 +64,15 @@ function errorHandler(error) {
     }
 
     console.log(message);
-};
+}
 
 
 function listItineraries() {
     var dirReader = filesystem.root.createReader();
     var entries = [];
-
-    var fetchEntries = function() {
-      dirReader.readEntries(function(results) {
+    var fetchEntries = function () {
+      dirReader.readEntries( function (results) {
+        console.log(results.length);
         if (!results.length) {
           displayItineraries(entries.sort().reverse());
         } else {
@@ -93,67 +81,59 @@ function listItineraries() {
         }
       }, errorHandler);
     };
-
     fetchEntries();
-};
+}
 
 function displayItineraries(entries) {
-   
-	fileList.innerHTML = '';
+	// fileList.innerHTML = '';
+ //    entries.forEach(function(entry, i) {
+ //      var li = document.createElement('li');
 
-    entries.forEach(function(entry, i) {
-      var li = document.createElement('li');
+ //      var link = document.createElement('a');
+ //      link.innerHTML = entry.name;
+ //      link.className = 'edit-file';
+ //      li.appendChild(link);
 
-      var link = document.createElement('a');
-      link.innerHTML = entry.name;
-      link.className = 'edit-file';
-      li.appendChild(link);
+ //      var delLink = document.createElement('a');
+ //      delLink.innerHTML = '[x]';
+ //      delLink.className = 'delete-file';
+ //      li.appendChild(delLink);
 
-      var delLink = document.createElement('a');
-      delLink.innerHTML = '[x]';
-      delLink.className = 'delete-file';
-      li.appendChild(delLink);
+ //      fileList.appendChild(li);
 
-      fileList.appendChild(li);
+ //      link.addEventListener('click', function (e) {
+ //        e.preventDefault(); 
+ //        loadFile(entry.name);
+ //      });
 
-      link.addEventListener('click', function(e) {
-        e.preventDefault(); 
-        loadFile(entry.name);
-      });
+ //      delLink.addEventListener('click', function (e) {
+ //        e.preventDefault();
+ //        deleteFile(entry.name);
+ //      });
+ //    });
+loadItinerary(entries[0].name);
+}
 
-      delLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        deleteFile(entry.name);
-      });
-    });
-};
-
-function loadItinerary(name) {
-    filesystem.root.getFile(name, {}, function(fileEntry) {
-
+function loadItinerary (name) {
+    filesystem.root.getFile(name, {}, function (fileEntry) { //look up what is going on with the empty object in params
       fileEntry.file(function(file) {
         var reader = new FileReader();
-
-        reader.onload = function(e) {
-        	//Get the data from the file
-            //var filename = name;
-            //var filecontent = this.result;
+        reader.onload = function (e) {
+          console.log("onload event for loadItinerary!");
+          console.log(e);
+            var fileContent = this.result;
+            console.log($.parseJSON(fileContent));
         };
-
         reader.readAsText(file);
       }, errorHandler);
-
     }, errorHandler);
-};
+}
 
 
 function deleteItinerary(name) {
-    filesystem.root.getFile(name, {create: false}, function(fileEntry) {
-
-      fileEntry.remove(function(e) {
+    filesystem.root.getFile(name, {create: false}, function (fileEntry) {
+      fileEntry.remove(function (e) {
     	  listItineraries();
-
       }, errorHandler);
-
     }, errorHandler);
-};
+}

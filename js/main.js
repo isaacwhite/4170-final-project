@@ -321,8 +321,19 @@ $(function() {
 $(".exit").click(function(){
     clearMarkers();
     drawItinerary();
-
+    listItinerary();
 });
+
+function listItinerary(){
+    var destinationVenue=TRP.itinerary[TRP.itinerary.length-1];
+    var waypoints=[];
+    for (var i=0; i<TRP.itinerary.length; i++){
+        var venue=TRP.itinerary[i];
+        var name=venue.name;
+        var id= venue.id;
+        $(".itinerary").append("<div class='connector'></div><div class='venue "+id+"'><h4>"+name+"</h4></div>");
+    }
+}
 
 //Google Maps functions
 function render_map() {

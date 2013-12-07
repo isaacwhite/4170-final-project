@@ -163,7 +163,9 @@ TRP.getSuggestions = function (param) {
         callbackObj = {
             venueSort    : venuesByRating,
             venueMap     : processedData,
-            'resultCount': resultCount
+            'resultCount': resultCount,
+            'searchTerm' : search,
+            'offset' : 0
         }
         TRP.searchHandler.ingestData(callbackObj);
     }
@@ -377,31 +379,81 @@ TRP.SearchObject = function() {
     this.searchHistory = [];
 };
 
+TRP.PageObject = function() {
+    this.pages = [];
+    this.pageHTML = [];
+}
 TRP.SearchObject.prototype.ingestData = function (data) {
     console.log(data);
     var orderedIDs = data.venueSort;
     this.resultCount = data.resultCount;
+    this.searchHistory.push(data.searchTerm);
+    this.searchResult = orderedIDs;
     var venues = data.venueMap;
+    var offset = data.offset;
     var thisID;
     var thisVenue;
     var thisHTML;
-    var displayed = [];
+    this.searchPages = [];
+    this.displayed = [];
     //the first time we pull in data
     for (var i = 0; i < orderedIDs.length; i++) {
         thisID = orderedIDs[i];
         thisVenue = venues[thisID];
         TRP.venueMap[thisID] = thisVenue;
-        if(i < 10) {
-            displayed.push(thisID);
-            thisHTML = thisVenue.toHTML();
-            $(".search-form .reference").append(thisHTML);
-        } //after this we'll force a prompt 
+        if ( i % 10 === 0) {
+            var pageObj = new TRP.PageObject();
+            this.searchPages.push(pageObj);
+        }
+        var currentPage = Math.floor((i + offset) / 10)
+        this.searchPages[currentPage].pages.push(thisID);
+        thisHTML = thisVenue.toHTML();
+        this.searchPages[currentPage].pageHTML += thisHTML;
+        
     }
+    this.currentPage = 0;
+    console.log(this);
+    $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
+    this.offset = 0;
     console.log(data);
     console.log(this);
     //place search results on map
+    var displayed = this.searchPages[this.currentPage].pages;
     placeSearchResults(displayed);
     TRP.loading = false;
+}
+
+TRP.SearchObject.prototype.pageForward = function () {
+    if(this.currentPage < this.searchPages.length-1){
+        this.currentPage++;
+        var lastPage = this.currentPage - 1;
+        var pageHTML = ""
+        $(".reference .venue").each( function() {
+            pageHTML += $(this)[0].outerHTML;
+            $(this).remove();
+        });
+        this.searchPages[lastPage].pageHTML = pageHTML;
+        $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
+        var displayed = this.searchPages[this.currentPage].pages;
+        console.log(displayed);
+        placeSearchResults(displayed);
+    }
+}
+TRP.SearchObject.prototype.pageBackward = function () {
+    if(this.currentPage !== 0){
+        this.currentPage--;
+        var lastPage = this.currentPage + 1;
+        var pageHTML = ""
+        $(".reference .venue").each( function() {
+            pageHTML += $(this)[0].outerHTML;
+            $(this).remove();
+        });
+        this.searchPages[lastPage].pageHTML = pageHTML;
+        $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
+        var displayed = this.searchPages[this.currentPage].pages;
+        console.log(displayed);
+        placeSearchResults(displayed);
+    }
 }
 //begin application
 $( function () {
@@ -605,9 +657,9 @@ function clearMarkers(){
 
 function drawItinerary(){
 // directions code modified from https://developers.google.com/maps/documentation/javascript/directions
-    var destinationVenue=TRP.itinerary[TRP.itinerary.length-1];
-    var destination= new google.maps.LatLng(destinationVenue.coord.lat, destinationVenue.coord.lon);
-    var origin= new google.maps.LatLng(TRP.currLoc.lat, TRP.currLoc.lon);
+    var destinationVenue = TRP.itinerary[TRP.itinerary.length-1];
+    var destination = new google.maps.LatLng(destinationVenue.coord.lat, destinationVenue.coord.lon);
+    var origin = new google.maps.LatLng(TRP.currLoc.lat, TRP.currLoc.lon);
     var waypoints=[];
     for (var i=0; i<TRP.itinerary.length-1; i++){
         var venue=TRP.itinerary[i];

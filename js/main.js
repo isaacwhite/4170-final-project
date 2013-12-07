@@ -38,20 +38,18 @@ TRP.Comment = function (prop) {
     this.photoUrl = prop.photoUrl;
 }
 
-TRP.Marker = function(prop){
-    this.lat= prop.lat;
-    this.lon= prop.lon;
-    this.name= prop.name;
-    this.id= prop.id;
+TRP.Marker = function (prop) {
+    this.lat      = prop.lat;
+    this.lon      = prop.lon;
+    this.name     = prop.name;
+    this.id       = prop.id;
     this.iconType = prop.iconType;
-    this.iconUrl = prop.iconUrl;
+    this.iconUrl  = prop.iconUrl;
 }
 
 TRP.getSuggestions = function (param) {
-
     var lat = param.lat;
     var lon = param.lon;
-    var callback = param.callback;
     var search = param.search;
 
     //we need to provide a center point, though radius is optional.
@@ -60,7 +58,6 @@ TRP.getSuggestions = function (param) {
         lat = TRP.currLoc.lat;
         lon = TRP.currLoc.lon;
     }
-
     function getResults() {
         var endpoint = TRP.fsAPI + "/venues/explore";
         var dateString = TRP.getDateString();
@@ -103,7 +100,6 @@ TRP.getSuggestions = function (param) {
         //this will be unreachable if we have any thumbnail already.
         return result;
     }
-
     function processLocation(location) {
         var loc = { 
             lat: location.lat,
@@ -119,7 +115,6 @@ TRP.getSuggestions = function (param) {
         };
         return returnObj;
     }
-
     function processCategory(category){
         var name=category.name;
         var iconUrl=category.icon;
@@ -131,7 +126,6 @@ TRP.getSuggestions = function (param) {
         }
         return returnObj;
     }
-
     function processData(data) {
         console.log(data);
         var processedData = {}; //hash map by id
@@ -140,11 +134,6 @@ TRP.getSuggestions = function (param) {
         var rawResults = data.response.groups[0].items;
         var venuesByRating = [];
         var callbackObj;
-
-        // console.log(statusCode);
-        // console.log(resultCount);
-        // console.log(rawResults);
-
         for (var i=0; i<rawResults.length; i++) {
             var thisResult = rawResults[i];
             var feedback = processTips(thisResult);
@@ -172,10 +161,11 @@ TRP.getSuggestions = function (param) {
         //designed to be used asynchronously
         //calls callback passed to getResults.
         callbackObj = {
-            venueSort: venuesByRating,
-            venueMap : processedData
+            venueSort    : venuesByRating,
+            venueMap     : processedData,
+            'resultCount': resultCount
         }
-        callback(callbackObj);
+        TRP.searchHandler.ingestData(callbackObj);
     }
     getResults();
 }
@@ -202,14 +192,6 @@ TRP.toggleSearchBox = function () {
         }
     }
 }
-TRP.getSearchResults = function (lat,lon,search,callback) {
-
-    function getResults(search,lat,lon) {
-        var endpoint = TRP.fsAPI + "/venues/search";
-        dateString = TRP.getDateString();
-    }
-}
-
 TRP.indicateLoad = function (url) {
     //this is a function that can be used for more complex ui info
     //for now just console log "loading"
@@ -363,7 +345,7 @@ TRP.FileSystem.getSavedData = function (callback) {
 TRP.FileSystem.saveData = function (saveObject,callback) {
     function writeData(contentString) {
         function deleteFile(callback) {
-            TRP.filesys.root.getFile(TRP.filename,{create:true}, function (fileEntry) {
+            TRP.filesys.root.getFile(TRP.filename, {create: true}, function (fileEntry) {
                 fileEntry.remove(callback);
             });
         }
@@ -381,7 +363,6 @@ TRP.FileSystem.saveData = function (saveObject,callback) {
         }
         var content = [];
         content.push(contentString);
-        console.log("about to delete");
         deleteFile(saveData); //will call saveData when finished.
     }
     if(TRP.filesys) {
@@ -390,12 +371,46 @@ TRP.FileSystem.saveData = function (saveObject,callback) {
         callback(false);
     }
 }
+
+TRP.SearchObject = function() {
+    this.resultCount = 0;
+    this.searchHistory = [];
+};
+
+TRP.SearchObject.prototype.ingestData = function (data) {
+    console.log(data);
+    var orderedIDs = data.venueSort;
+    this.resultCount = data.resultCount;
+    var venues = data.venueMap;
+    var thisID;
+    var thisVenue;
+    var thisHTML;
+    var displayed = [];
+    //the first time we pull in data
+    for (var i = 0; i < orderedIDs.length; i++) {
+        thisID = orderedIDs[i];
+        thisVenue = venues[thisID];
+        TRP.venueMap[thisID] = thisVenue;
+        if(i < 10) {
+            displayed.push(thisID);
+            thisHTML = thisVenue.toHTML();
+            $(".search-form .reference").append(thisHTML);
+        } //after this we'll force a prompt 
+    }
+    console.log(data);
+    console.log(this);
+    //place search results on map
+    placeSearchResults(displayed);
+    TRP.loading = false;
+}
 //begin application
 $( function () {
 
     TRP.FileSystem.getSavedData(function (data) {
         console.log(data);
     });
+
+    TRP.searchHandler = new TRP.SearchObject();
     $(".add-item").click(function () {
         TRP.toggleSearchBox();
     });
@@ -403,28 +418,7 @@ $( function () {
         TRP.toggleSearchBox();
     });
 
-    var searchObj = {
-        callback: function (data) {
-            var orderedIDs = data.venueSort;
-            var venues = data.venueMap;
-            var thisID;
-            var thisVenue;
-            var thisHTML;
-            console.log("callback called")
-            for (var i = 0; i < orderedIDs.length; i++) {
-                thisID = orderedIDs[i];
-                thisVenue = venues[thisID];
-                TRP.venueMap[thisID] = thisVenue;
-                thisHTML = thisVenue.toHTML();
-                $(".search-form .reference").append(thisHTML);
-            }
-            console.log(data);
-            //place search results on map
-            placeSearchResults(data);
-
-            TRP.loading = false;
-        }
-    };
+    var searchObj = {};
 
     $("#submit-button").click(function(e) {
         if (TRP.loading === false) {
@@ -493,7 +487,7 @@ function render_map() {
           TRP.currLoc.lat=position.coords.latitude;
           TRP.currLoc.lon= position.coords.longitude;
           lat = TRP.currLoc.lat;
-          lon= TRP.currLoc.lon;
+          lon = TRP.currLoc.lon;
           var initial_loc = new google.maps.LatLng(lat, lon);
           var markerData = {
                 'lat': lat,
@@ -576,7 +570,7 @@ function render_map() {
 }
 
 function placeSearchResults(results){
-    var keysArray = results.venueSort;
+    var keysArray = results;
     //console.log(" MARKERS TRIP MARKERS BEFORE");
       //console.log(TRP.markers.length);
      // console.log(TRP.markers);
@@ -586,8 +580,8 @@ function placeSearchResults(results){
     add_marker(TRP.Marker.init);
   //  add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location', "blue-dot");
     for (var i in keysArray){
-        var key=keysArray[i];
-        var locationObj=results.venueMap[key];
+        var key = keysArray[i];
+        var locationObj = TRP.venueMap[key];
         var markerData = {
             'lat': locationObj.coord.lat,
             'lon': locationObj.coord.lon,

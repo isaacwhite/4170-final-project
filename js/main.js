@@ -348,6 +348,8 @@ function render_map() {
         navigator.geolocation.getCurrentPosition(function(position) {
           TRP.currLoc.lat=position.coords.latitude;
           TRP.currLoc.lon= position.coords.longitude;
+          lat = TRP.currLoc.lat;
+          lon= TRP.currLoc.lon;
           var initial_loc = new google.maps.LatLng(lat, lon);
           TRP.currLoc=add_marker( lat, lon, 'Your current location', "blue-dot");
           TRP.map.setCenter(initial_loc);

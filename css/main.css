@@ -376,3 +376,7 @@ blockquote {
      width: 75px;     
      border: 1px solid gray;
 }
+
+.reference .venue.active h3{
+    background-color:#4bcbf2;
+}

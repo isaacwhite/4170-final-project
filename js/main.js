@@ -727,6 +727,9 @@ function render_map() {
     //should the infoWindow be kept open?
     google.maps.event.addListener(marker, 'click', function() {
     marker.infoWindow.open(TRP.map,marker);
+    console.log(id);
+    $(".reference .venue").removeClass("active");
+    $(".id-"+id).addClass("active");
     maxIndex++;
     //don't know if we want this
     marker.setZIndex(maxIndex);
@@ -775,6 +778,7 @@ function clearMarkers(){
 function drawItinerary(){
 // directions code modified from https://developers.google.com/maps/documentation/javascript/directions
     var destinationVenue = TRP.itinerary[TRP.itinerary.length-1];
+    console.log(destinationVenue);
     var destination = new google.maps.LatLng(destinationVenue.coord.lat, destinationVenue.coord.lon);
     var origin = new google.maps.LatLng(TRP.currLoc.lat, TRP.currLoc.lon);
     var waypoints=[];

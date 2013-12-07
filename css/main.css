@@ -345,3 +345,24 @@ blockquote {
      width: 75px;     
      border: 1px solid gray;
 }
+
+.labels.active{
+     color: black;
+     background-color: yellow;
+     font-family: "Lucida Grande", "Arial", sans-serif;
+     font-size: 10px;
+     font-weight: bold;
+     text-align: center;
+     width: 75px;     
+     border: 1px solid gray;
+}
+.labels.added{
+         color: white;
+     background-color: black;
+     font-family: "Lucida Grande", "Arial", sans-serif;
+     font-size: 10px;
+     font-weight: bold;
+     text-align: center;
+     width: 75px;     
+     border: 1px solid gray;
+}

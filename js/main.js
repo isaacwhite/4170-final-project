@@ -8,7 +8,7 @@ TRP.loading = false;
 TRP.venueMap = {};//hashmap
 TRP.itinerary = [];
 TRP.map;
-TRP.markersMap = [];
+TRP.markersMap = {};
 TRP.markerInit;
 TRP.FileSystem = {};
 
@@ -230,12 +230,12 @@ TRP.Venue.prototype.toHTML = function () {
         var titleString = "<h3>" + that.name + "</h3>";
         var addButton = "<div class='add-venue'><span>Add venue</span></div>";
         var htmlAddress = that.address;
-        if(that.url){
-            venueString += "<a href=\"" + that.url + "\">";
-            venueString += titleString + "</a>";
-        } else {
+        // if(that.url){
+        //     venueString += "<a href=\"" + that.url + "\">";
+        //     venueString += titleString + "</a>";
+        // } else {
             venueString += titleString;
-        }
+        //}
         venueString += addButton;
         if(that.thumb) {
             venueString += "<div class='thumb' style=\"background-image: ";
@@ -453,6 +453,31 @@ $( function () {
         venueObj.addClass("added");
         console.log(TRP.itinerary);
     });
+     $(document).on('click', '.venue', function() { // Make your changes here
+        console.log("clicked on the results card!");
+        var venueObj = $(this).closest(".venue");
+        var mapID = venueObj[0].classList[1];
+        mapID = mapID.substring(3);
+        console.log(mapID);
+        var activeMarker= TRP.markersMap[mapID];
+        var lat=activeMarker.position.pb;
+        var lon=activeMarker.position.qb;
+        console.log(lat);
+        //console.log(lng);
+        TRP.map.panTo(new google.maps.LatLng(lat, lon));
+        (activeMarker.setAnimation(google.maps.Animation.BOUNCE));
+        setTimeout(function(){ activeMarker.setAnimation(null); }, 1400);
+
+        console.log(activeMarker);
+        $(".labels").removeClass("active");
+        $(".labels."+mapID).addClass("active");
+        
+
+      //  TRP.itinerary.push(TRP.venueMap[mapID]);
+       // venueObj.addClass("added");
+      //  console.log(TRP.itinerary);
+    });
+
 })
 
 
@@ -476,7 +501,7 @@ function listItinerary(){
 //Google Maps functions
 function render_map() {
     var mapOptions = {
-        zoom: 12,
+        zoom: 11,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
       TRP.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
@@ -493,7 +518,7 @@ function render_map() {
                 'lat': lat,
                 'lon': lon,
                 'name': 'Your current location',
-                'id' : null,
+                'id' : 1111,
                 'iconType': 'blue-dot',
                 'iconUrl': null
           }
@@ -521,7 +546,7 @@ function render_map() {
                 'lat': lat,
                 'lon': lon,
                 'name': 'Default NYC location',
-                'id' : null,
+                'id' : 1111,
                 'iconType': 'blue-dot',
                 'iconUrl': null
           }
@@ -544,7 +569,7 @@ function render_map() {
         map: TRP.map,
         labelContent: markerData.name,
         labelAnchor: new google.maps.Point(22, 0),
-        labelClass: "labels", // the CSS class for the label
+        labelClass: "labels "+id, // the CSS class for the label
         labelStyle: {opacity: 0.75}
      });
     setMarkerType(marker,markerData.iconType, markerData.iconUrl);
@@ -565,8 +590,8 @@ function render_map() {
         //don't know if we want this
         marker.setZIndex(maxIndex);
     })
-
-    TRP.markersMap.push(marker);
+    TRP.markersMap[id]=marker;
+    //TRP.markersMap.push(marker[id]);
 }
 
 function placeSearchResults(results){
@@ -597,7 +622,7 @@ function clearMarkers(){
         TRP.markersMap[markers].setMap(null);
     }
      for (var markers in TRP.markersMap){
-         TRP.markersMap.pop();
+         TRP.markersMap={};
     }       
 }
 

@@ -7,7 +7,8 @@ TRP.loading = false;
 TRP.venueMap = {};//hashmap
 TRP.itinerary = [];
 TRP.map;
-TRP.markers=[];
+TRP.markers = [];
+TRP.FileSystem = {};
 
 TRP.getDateString = function () {
     var dateNow = new Date();
@@ -250,8 +251,128 @@ TRP.Venue.prototype.toHTML = function () {
     return venueHTML();
 }
 
+TRP.filename = "trippy_itineraries.txt";
+TRP.FileSystem.getSavedData = function (callback) {
+    function reportError(e) {
+            console.log("Filesystem failed!");
+            console.log(e);
+            callback("FAILURE!");
+    }
+
+    function init(){
+        if(!TRP.filesys) {
+            try {
+                window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+                navigator.webkitPersistentStorage.requestQuota(1024 * 1024 * 2.5, function (grantedSize) {
+                    window.requestFileSystem(window.PERSISTENT, grantedSize, function (fs) {
+                      TRP.filesys = fs;
+                      readData();
+                    });
+                });
+            } catch(e) {
+                reportError("initial failure");
+            }
+        } else {
+            readData();
+        }
+    }
+
+    function readData() {
+        try {
+            var dirReader = TRP.filesys.root.createReader();
+            var entries = [];
+            function fetchEntries() {
+              dirReader.readEntries( function (results) {
+                if (!results.length) {
+                  processData(entries.sort().reverse());
+                } else {
+                  entries = entries.concat(results);
+                  fetchEntries();
+                }
+              });
+            };
+            fetchEntries();
+        } catch(e) {
+            reportError("error reading");
+        }
+    }
+
+    function processData(entries) {
+        function findEntry(entries) {
+            for(var i=0; i < entries.length; i++) {
+                if(entries[i].name === TRP.filename) {
+                    thisEntry = entries[i].name;
+                    return thisEntry;
+                } 
+            }
+            //if we made it this far, it means we failed.
+            return false;
+        }
+        thisEntry = findEntry(entries);
+        if(thisEntry) {
+            try {
+                var name = thisEntry;
+                TRP.filesys.root.getFile(name, {}, function (fileEntry) { //look up what is going on with the empty object in params
+                    fileEntry.file(function (file) {
+                        var reader = new FileReader();
+                        console.log(reader);
+                        reader.onload = function (e) {
+                            var fileContent = this.result;
+                            console.log(fileContent);
+                            callback($.parseJSON(fileContent));
+                        };
+                        reader.readAsText(file);
+                    });
+                });
+            } catch(e) {
+                reportError("error processing");
+            }
+        }
+    }
+
+    if(!TRP.filesys) {
+        init(); //this will actually call readData on success, so no need to fall through to calling it directly.
+    } else {
+        readData();
+    }
+}
+
+TRP.FileSystem.saveData = function (saveObject,callback) {
+    function writeData(contentString) {
+        function deleteFile(callback) {
+            TRP.filesys.root.getFile(TRP.filename,{create:true}, function (fileEntry) {
+                fileEntry.remove(callback);
+            });
+        }
+        function saveData() {
+            console.log("file was deleted. now saving again.");
+            TRP.filesys.root.getFile(TRP.filename, {create: true}, function (fileEntry) {
+                fileEntry.createWriter(function (fileWriter) {
+                    fileWriter.onerror = function (e) {
+                        callback(false);
+                    };
+                    var contentBlob = new Blob(content, {type: 'text/plain'});
+                    fileWriter.write(contentBlob, callback(true));
+                });
+            });
+        }
+        var content = [];
+        content.push(contentString);
+        console.log("about to delete");
+        deleteFile(saveData); //will call saveData when finished.
+    }
+    if(TRP.filesys) {
+        writeData(JSON.stringify(saveObject));
+    } else {
+        callback(false);
+    }
+}
 //begin application
 $( function () {
+
+    TRP.FileSystem.getSavedData(function (data) {
+        console.log(data);
+    });
     $(".add-item").click(function () {
         TRP.toggleSearchBox();
     });
@@ -371,7 +492,7 @@ function render_map() {
       TRP.map.setCenter(initial_loc);
 
     }
-} google.maps.event.addDomListener(window, 'load', render_map);
+}; //google.maps.event.addDomListener(window, 'load', render_map);
 
 function add_marker(lat, lon, name, markerType){
       var marker = new MarkerWithLabel({
@@ -469,14 +590,14 @@ function drawItinerary(){
       }
     });
 
-    // add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location', "blue-dot");
-    // for (var k in TRP.itinerary){
-    //     var venue=TRP.itinerary[k];
-    //     var lat =venue.coord.lat;
-    //     var lon = venue.coord.lon;
-    //     var name= venue.name;
-    //     add_marker(lat, lon, name, "yellow");
-    // }
+    add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location', "blue-dot");
+    for (var k in TRP.itinerary){
+        var venue=TRP.itinerary[k];
+        var lat =venue.coord.lat;
+        var lon = venue.coord.lon;
+        var name= venue.name;
+        add_marker(lat, lon, name, "yellow");
+    }
 }
 
 function setMarkerType(marker, markerType){

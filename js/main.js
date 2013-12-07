@@ -8,8 +8,8 @@ TRP.loading = false;
 TRP.venueMap = {};//hashmap
 TRP.itinerary = [];
 TRP.map;
-TRP.markers = [];
-TRP.markers.init;
+TRP.markersMap = [];
+TRP.markerInit;
 TRP.FileSystem = {};
 
 TRP.getDateString = function () {
@@ -503,9 +503,9 @@ function render_map() {
                 'iconType': 'blue-dot',
                 'iconUrl': null
           }
-          TRP.Marker.init= new TRP.Marker(markerData);
-          console.log(TRP.Marker.init);
-          add_marker(TRP.Marker.init);
+          TRP.markerInit= new TRP.Marker(markerData);
+          console.log(TRP.markerInit);
+          add_marker(TRP.markerInit);
           TRP.map.setCenter(initial_loc);
         }, function() {
           geolocationErr();
@@ -531,7 +531,7 @@ function render_map() {
                 'iconType': 'blue-dot',
                 'iconUrl': null
           }
-      TRP.Marker.init= new TRP.Marker(markerData);
+      TRP.markerInit= new TRP.Marker(markerData);
       console.log(TRP.Marker.init);
       add_marker(TRP.Marker.init);
       TRP.map.setCenter(initial_loc);
@@ -557,7 +557,7 @@ function render_map() {
 
     var maxIndex = google.maps.Marker.MAX_ZINDEX;
        marker.infoWindow = new google.maps.InfoWindow({
-       content:name  
+       content:markerData.name  
     });
     //should the infoWindow be kept open?
     google.maps.event.addListener(marker, 'click', function() {
@@ -572,18 +572,15 @@ function render_map() {
         marker.setZIndex(maxIndex);
     })
 
-    TRP.markers.push(marker);
+    TRP.markersMap.push(marker);
 }
 
 function placeSearchResults(results){
     var keysArray = results.venueSort;
-    //console.log(" MARKERS TRIP MARKERS BEFORE");
-      //console.log(TRP.markers.length);
-     // console.log(TRP.markers);
     TRP.map.setZoom(16);
 
     clearMarkers();
-    add_marker(TRP.Marker.init);
+    add_marker(TRP.markerInit);
   //  add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location', "blue-dot");
     for (var i in keysArray){
         var key=keysArray[i];
@@ -600,12 +597,11 @@ function placeSearchResults(results){
     }
 }
 function clearMarkers(){
-    for (var j =0; j<TRP.markers.length; j++){
-        TRP.markers[j].setMap(null);
-    
+    for (var markers in TRP.markersMap){
+        TRP.markersMap[markers].setMap(null);
     }
-     for (var markers in TRP.markers){
-         TRP.markers.pop();
+     for (var markers in TRP.markersMap){
+         TRP.markersMap.pop();
     }       
 }
 

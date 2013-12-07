@@ -12,6 +12,8 @@ TRP.markersMap = {};
 TRP.markerInit;
 TRP.FileSystem = {};
 TRP.addedObject = "<div class='added-label'><h2>Added to itinerary</h2><h4>Remove from itinerary</h4></div>";
+TRP.saveData;
+TRP.currentItinerary;
 
 TRP.getDateString = function () {
     var dateNow = new Date();
@@ -38,7 +40,6 @@ TRP.Comment = function (prop) {
     this.uLast    = prop.lastName;
     this.photoUrl = prop.photoUrl;
 }
-
 TRP.Marker = function (prop) {
     this.lat      = prop.lat;
     this.lon      = prop.lon;
@@ -424,6 +425,74 @@ TRP.SearchObject.prototype.ingestData = function (data) {
     TRP.loading = false;
 }
 
+TRP.Itinerary = function (name,eventHash,orderArray) {
+    this.name = name;
+    this.eventHash = {};
+    if(orderArray) {
+        this.orderArray = orderArray;
+        
+        for (var i = 0; i < orderArray.length; i++) {
+            var position = i;
+            var id = orderArray[i];
+            this.eventHash[id] = eventHash[id];
+            this.eventHash[id].itinPos = position;
+        }
+    } else {
+        this.orderArray = [];
+    }
+}
+
+//adds an array of events onto the itinerary
+TRP.Itinerary.prototype.addEvents = function (events) {
+    var position = this.orderArray.length;
+    for (var i = 0; i < events.length; i++) {
+        var id = events[i].id;
+        this.orderArray.push(id);
+        this.eventHash[id] = events[i];
+        this.eventHash[id].itinPos = position;
+        position++;
+    }
+}
+
+TRP.Itinerary.prototype.addEvent = function (event) {
+    var arrayTransform = [event];
+    this.addEvents(arrayTransform);
+}
+
+TRP.Itinerary.prototype.removeEvent = function (event) {
+    var arrayTransform = [event];
+    this.removeEvents(arrayTransform);
+}
+
+TRP.Itinerary.prototype.moveEventPos = function (venueID,positionDestination) {
+    var currentPos = this.eventHash[id].itinPos;
+    var destIndex = positionDestination - 1; //we'll see if we actually need to subtract this.
+    var movingValue = this.orderArray.splice(currentPos,1);
+    var orderEnd = this.orderArray.splice(destIndex,this.orderArray.length-destIndex);
+    this.orderArray.concat(movingValue,orderEnd);
+    this.refreshPositionRef();
+
+}
+
+TRP.Itinerary.prototype.removeEvents = function (ids) {
+    for (var i = 0; i < ids.length; i++) {
+        var eventID = ids[i];
+        var refObject = this.eventHash[eventID];
+        var arrayPos = refObject.itinPos;
+        this.orderArray.splice(arrayPos,1); //remove it from the array
+        delete this.eventHash[eventID]; //delete from the hash table.
+    }
+    this.refreshPositionRef()
+}
+
+TRP.Itinerary.prototype.refreshPositionRef = function() {
+    var orderArray = this.orderArray;
+    for (var i = 0; i < orderArray.length; i++) {
+        var id = orderArray[i];
+        this.eventHash[id].itinPos = i;
+    }
+}
+
 TRP.SearchObject.prototype.pageForward = function () {
     if(this.currentPage < this.searchPages.length-1){
         this.currentPage++;
@@ -459,8 +528,12 @@ TRP.SearchObject.prototype.pageBackward = function () {
 //begin application
 $( function () {
 
+
     TRP.FileSystem.getSavedData(function (data) {
         console.log(data);
+        if(!data.itineraries) {
+            TRP.currentItinerary = new TRP.Itinerary();
+        }
     });
 
     TRP.searchHandler = new TRP.SearchObject();
@@ -497,29 +570,28 @@ $( function () {
     });
     
      $(document).on('click', '.venue .add-venue', function(e) { // Make your changes here
-        console.log("clicked on the add button!");
+        var curItin = TRP.currentItinerary;
         var venueObj = $(this).closest(".venue");
         var mapID = venueObj[0].classList[1];
         mapID = mapID.substring(3);
         console.log(mapID);
-        TRP.itinerary.push(TRP.venueMap[mapID]);
+        curItin.addEvent(TRP.venueMap[mapID]);
         venueObj.addClass("added");
         venueObj.prepend(TRP.addedObject);
-        console.log(TRP.itinerary);
+        console.log(curItin);
         e.stopPropagation();
     });
     $(document).on('click', '.venue .added-label h4', function(e) { // Make your changes here
+        var curItin = TRP.currentItinerary;
         console.log("clicked on the remove from itinerary button!");
         var venueObj = $(this).closest(".venue");
         var mapID = venueObj[0].classList[1];
         mapID = mapID.substring(3);
         console.log(mapID);
-        // TRP.itinerary.push(TRP.venueMap[mapID]);
-        // we'll actually want to remove it here...
-        //lets model the itinerary differently to take care of that.
+        curItin.removeEvent(mapID);
         venueObj.removeClass("added");
         venueObj.find(".added-label").remove();
-        console.log(TRP.itinerary);
+        console.log(curItin);
         e.stopPropagation();
     });
 

@@ -230,7 +230,7 @@ TRP.Venue.prototype.toHTML = function () {
 
     function venueHTML() {
         var venueString = "<div class='venue"
-        venueString += " id-" + that.id + "'>";
+        venueString += " id-" + that.id + "'id='id-"+that.id+"'>";
         var titleString = "<h3>" + that.name + "</h3>";
         var addButton = "<div class='add-venue'><span>Add venue</span></div>";
         var htmlAddress = that.address;
@@ -716,7 +716,8 @@ function render_map() {
         labelContent: markerData.name,
         labelAnchor: new google.maps.Point(22, 0),
         labelClass: "labels "+id, // the CSS class for the label
-        labelStyle: {opacity: 0.75}
+        labelStyle: {opacity: 0.75},
+        url: "#id-"+id
      });
     setMarkerType(marker,markerData.iconType, markerData.iconUrl);
 
@@ -733,6 +734,9 @@ function render_map() {
     maxIndex++;
     //don't know if we want this
     marker.setZIndex(maxIndex);
+    window.location.href = marker.url;
+    //animate not working
+    //$("article").animate({ scrollTop: $('#id-4c13897db7b9c92822a6a937').offset().top }, 1000);
   });
     google.maps.event.addListener(marker, 'mouseover', function(){
         maxIndex++;

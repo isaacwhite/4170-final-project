@@ -2,6 +2,7 @@ TRP = {};
 TRP.oauth = "EJJLH0BUCOHLVG2NVX1Z0ZK1IKWYWWXJSQUVR2VBG4IYG00G";
 TRP.fsAPI = "https://api.foursquare.com/v2";
 TRP.currLoc = {lat: 40.7588889, lon: -73.9851533};
+TRP.filename = "trippy_itineraries.txt";
 TRP.searchOpen = false;
 TRP.loading = false;
 TRP.venueMap = {};//hashmap
@@ -188,7 +189,6 @@ TRP.indicateLoad = function (url) {
     //for now just console log "loading"
     console.log("Loading... (" + url + ")");
 }
-
 TRP.Venue.prototype.toHTML = function () {
     var returnString = "";
     var that = this;
@@ -250,8 +250,6 @@ TRP.Venue.prototype.toHTML = function () {
     
     return venueHTML();
 }
-
-TRP.filename = "trippy_itineraries.txt";
 TRP.FileSystem.getSavedData = function (callback) {
     function reportError(e) {
             console.log("Filesystem failed!");
@@ -336,7 +334,6 @@ TRP.FileSystem.getSavedData = function (callback) {
         readData();
     }
 }
-
 TRP.FileSystem.saveData = function (saveObject,callback) {
     function writeData(contentString) {
         function deleteFile(callback) {
@@ -469,6 +466,8 @@ function render_map() {
         navigator.geolocation.getCurrentPosition(function(position) {
           TRP.currLoc.lat=position.coords.latitude;
           TRP.currLoc.lon= position.coords.longitude;
+          lat = TRP.currLoc.lat;
+          lon= TRP.currLoc.lon;
           var initial_loc = new google.maps.LatLng(lat, lon);
           TRP.currLoc=add_marker( lat, lon, 'Your current location', "blue-dot");
           TRP.map.setCenter(initial_loc);
@@ -492,7 +491,7 @@ function render_map() {
       TRP.map.setCenter(initial_loc);
 
     }
-}; //google.maps.event.addDomListener(window, 'load', render_map);
+} google.maps.event.addDomListener(window, 'load', render_map);
 
 function add_marker(lat, lon, name, markerType){
       var marker = new MarkerWithLabel({

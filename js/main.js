@@ -11,6 +11,7 @@ TRP.map;
 TRP.markersMap = {};
 TRP.markerInit;
 TRP.FileSystem = {};
+TRP.addedObject = "<div class='added-label'><h2>Added to itinerary</h2><h4>Remove from itinerary</h4></div>";
 
 TRP.getDateString = function () {
     var dateNow = new Date();
@@ -495,7 +496,7 @@ $( function () {
         e.preventDefault();
     });
     
-     $(document).on('click', '.venue .add-venue', function() { // Make your changes here
+     $(document).on('click', '.venue .add-venue', function(e) { // Make your changes here
         console.log("clicked on the add button!");
         var venueObj = $(this).closest(".venue");
         var mapID = venueObj[0].classList[1];
@@ -503,8 +504,28 @@ $( function () {
         console.log(mapID);
         TRP.itinerary.push(TRP.venueMap[mapID]);
         venueObj.addClass("added");
+        venueObj.prepend(TRP.addedObject);
         console.log(TRP.itinerary);
+        e.stopPropagation();
     });
+    $(document).on('click', '.venue .added-label h4', function(e) { // Make your changes here
+        console.log("clicked on the remove from itinerary button!");
+        var venueObj = $(this).closest(".venue");
+        var mapID = venueObj[0].classList[1];
+        mapID = mapID.substring(3);
+        console.log(mapID);
+        // TRP.itinerary.push(TRP.venueMap[mapID]);
+        // we'll actually want to remove it here...
+        //lets model the itinerary differently to take care of that.
+        venueObj.removeClass("added");
+        venueObj.find(".added-label").remove();
+        console.log(TRP.itinerary);
+        e.stopPropagation();
+    });
+
+     // $(document).on('click', function(e) {
+     //    console.log(e);
+     // })
      $(document).on('click', '.venue', function() { // Make your changes here
         console.log("clicked on the results card!");
         var venueObj = $(this).closest(".venue");

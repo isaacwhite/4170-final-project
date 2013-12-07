@@ -591,10 +591,10 @@ function drawItinerary(){
 
     add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location', "blue-dot");
     for (var k in TRP.itinerary){
-        var venue=TRP.itinerary[k];
-        var lat =venue.coord.lat;
+        var venue = TRP.itinerary[k];
+        var lat = venue.coord.lat;
         var lon = venue.coord.lon;
-        var name= venue.name;
+        var name = venue.name;
         add_marker(lat, lon, name, "yellow");
     }
 }

@@ -48,7 +48,6 @@ TRP.Marker = function (prop) {
     this.iconType = prop.iconType;
     this.iconUrl  = prop.iconUrl;
 }
-
 TRP.getSuggestions = function (param) {
     var lat = param.lat;
     var lon = param.lon;
@@ -200,6 +199,13 @@ TRP.indicateLoad = function (url) {
     //this is a function that can be used for more complex ui info
     //for now just console log "loading"
     console.log("Loading... (" + url + ")");
+}
+TRP.updateItineraryView = function() {
+    var htmlString = TRP.currentItinerary.toHTML();
+
+    $("article .itinerary").remove();
+    $("article .end").before(htmlString);
+
 }
 TRP.Venue.prototype.toHTML = function () {
     var returnString = "";
@@ -375,12 +381,10 @@ TRP.FileSystem.saveData = function (saveObject,callback) {
         callback(false);
     }
 }
-
 TRP.SearchObject = function() {
     this.resultCount = 0;
     this.searchHistory = [];
 };
-
 TRP.PageObject = function() {
     this.pages = [];
     this.pageHTML = [];
@@ -424,7 +428,6 @@ TRP.SearchObject.prototype.ingestData = function (data) {
     placeSearchResults(displayed);
     TRP.loading = false;
 }
-
 TRP.Itinerary = function (name,eventHash,orderArray) {
     this.name = name;
     this.eventHash = {};
@@ -441,7 +444,6 @@ TRP.Itinerary = function (name,eventHash,orderArray) {
         this.orderArray = [];
     }
 }
-
 //adds an array of events onto the itinerary
 TRP.Itinerary.prototype.addEvents = function (events) {
     var position = this.orderArray.length;
@@ -453,17 +455,14 @@ TRP.Itinerary.prototype.addEvents = function (events) {
         position++;
     }
 }
-
 TRP.Itinerary.prototype.addEvent = function (event) {
     var arrayTransform = [event];
     this.addEvents(arrayTransform);
 }
-
 TRP.Itinerary.prototype.removeEvent = function (event) {
     var arrayTransform = [event];
     this.removeEvents(arrayTransform);
 }
-
 TRP.Itinerary.prototype.moveEventPos = function (venueID,positionDestination) {
     var currentPos = this.eventHash[id].itinPos;
     var destIndex = positionDestination - 1; //we'll see if we actually need to subtract this.
@@ -471,9 +470,7 @@ TRP.Itinerary.prototype.moveEventPos = function (venueID,positionDestination) {
     var orderEnd = this.orderArray.splice(destIndex,this.orderArray.length-destIndex);
     this.orderArray.concat(movingValue,orderEnd);
     this.refreshPositionRef();
-
 }
-
 TRP.Itinerary.prototype.removeEvents = function (ids) {
     for (var i = 0; i < ids.length; i++) {
         var eventID = ids[i];
@@ -484,7 +481,6 @@ TRP.Itinerary.prototype.removeEvents = function (ids) {
     }
     this.refreshPositionRef()
 }
-
 TRP.Itinerary.prototype.refreshPositionRef = function() {
     var orderArray = this.orderArray;
     for (var i = 0; i < orderArray.length; i++) {
@@ -492,7 +488,10 @@ TRP.Itinerary.prototype.refreshPositionRef = function() {
         this.eventHash[id].itinPos = i;
     }
 }
-
+TRP.Itinerary.prototype.setDirections = function(prop) {
+  this.mapsData = prop; //keep it simple, processed already.
+  console.log(this);
+}
 TRP.SearchObject.prototype.pageForward = function () {
     if(this.currentPage < this.searchPages.length-1){
         this.currentPage++;
@@ -524,6 +523,43 @@ TRP.SearchObject.prototype.pageBackward = function () {
         console.log(displayed);
         placeSearchResults(displayed);
     }
+}
+
+TRP.Itinerary.prototype.toHTML = function() {
+    function venueToHTML(venue) {
+        var htmlString = "<div class='venue'>";
+        htmlString += "<h4>" + venue.name + "</h4>";
+        htmlString += "</div>";
+
+        return htmlString;
+    } 
+    function legToHTML(leg) {
+        var htmlString = "<div class='duration'>" + leg.duration.text + "<br>" + leg.transitMode + "</div>";
+        htmlString += "<div class='connector'></div>";
+        htmlString += "<div class='distance'>" + leg.distance.text + "</div>";
+        return htmlString;
+    }
+    var htmlString = "<div class='itinerary'>";
+
+    for(var i = 0; i < this.orderArray.length; i++) {
+        if (i === 0) {
+            htmlString += "<div class='venue'><h4>Your Current Location</h4></div>";
+            htmlString += legToHTML(this.mapsData.directions[0]);
+        }
+
+        var id = this.orderArray[i]
+        var venueObj = this.eventHash[id];
+        htmlString += venueToHTML(venueObj);
+        if (i !== this.orderArray.length - 1) {
+            htmlString += legToHTML(this.mapsData.directions[i+1]);
+        }
+
+    }
+
+
+    htmlString += "</div>";
+
+    return htmlString;
 }
 //begin application
 $( function () {
@@ -717,26 +753,25 @@ function render_map() {
         labelClass: "labels "+id, // the CSS class for the label
         labelStyle: {opacity: 0.75}
      });
-    setMarkerType(marker,markerData.iconType, markerData.iconUrl);
+        setMarkerType(marker,markerData.iconType, markerData.iconUrl);
 
-    var maxIndex = google.maps.Marker.MAX_ZINDEX;
-       marker.infoWindow = new google.maps.InfoWindow({
-       content:markerData.name  
-    });
-    //should the infoWindow be kept open?
-    google.maps.event.addListener(marker, 'click', function() {
-    marker.infoWindow.open(TRP.map,marker);
-    maxIndex++;
-    //don't know if we want this
-    marker.setZIndex(maxIndex);
-  });
-    google.maps.event.addListener(marker, 'mouseover', function(){
+        var maxIndex = google.maps.Marker.MAX_ZINDEX;
+           marker.infoWindow = new google.maps.InfoWindow({
+           content:markerData.name  
+        });
+        //should the infoWindow be kept open?
+        google.maps.event.addListener(marker, 'click', function() {
+        marker.infoWindow.open(TRP.map,marker);
         maxIndex++;
         //don't know if we want this
         marker.setZIndex(maxIndex);
-    })
-    TRP.markersMap[id]=marker;
-    //TRP.markersMap.push(marker[id]);
+      });
+        google.maps.event.addListener(marker, 'mouseover', function(){
+            maxIndex++;
+            //don't know if we want this
+            marker.setZIndex(maxIndex);
+        })
+        TRP.markersMap[id]=marker;
 }
 
 function placeSearchResults(results){
@@ -773,12 +808,46 @@ function clearMarkers(){
 
 function drawItinerary(){
 // directions code modified from https://developers.google.com/maps/documentation/javascript/directions
-    var destinationVenue = TRP.itinerary[TRP.itinerary.length-1];
+    function processResults(results) {
+        function thisLeg(distance,duration,transitMode,steps) {
+            this.distance = distance;
+            this.duration = duration;
+            this.transitMode = transitMode;
+            this.directions = steps;
+        }
+        var returnVal = {};
+        returnVal.directions = [];
+        var legs = results.legs;
+        for (var i = 0; i < legs.length; i++) {
+            console.log(legs[i]);
+           var distance = legs[i].distance;
+           var duration = legs[i].duration;
+           var steps = [];
+           var transitMode = legs[i].steps[0].travel_mode.toLowerCase();
+           console.log(legs[i]);
+           for (var j = 0; j < legs[i].steps.length; j++) {
+            steps.push(legs[i].steps[j].instructions);
+           }
+           var procObj = new thisLeg(distance,duration,transitMode,steps);
+           returnVal.directions.push(procObj);
+        }
+        returnVal.waypointOrder = results.waypoint_order;//don't know what this is, but it looks useful.
+
+        return returnVal;
+    }
+
+    var itinArray = [];
+    for(var i = 0; i < TRP.currentItinerary.orderArray.length; i++) {
+        var thisID = TRP.currentItinerary.orderArray[i];
+        var venueObj = TRP.currentItinerary.eventHash[thisID];
+        itinArray.push(venueObj)
+    }
+    var destinationVenue = itinArray[itinArray.length-1];
     var destination = new google.maps.LatLng(destinationVenue.coord.lat, destinationVenue.coord.lon);
     var origin = new google.maps.LatLng(TRP.currLoc.lat, TRP.currLoc.lon);
     var waypoints=[];
-    for (var i=0; i<TRP.itinerary.length-1; i++){
-        var venue=TRP.itinerary[i];
+    for (var i=0; i<itinArray.length-1; i++){
+        var venue=itinArray[i];
         var waypoint= new google.maps.LatLng(venue.coord.lat, venue.coord.lon);
          waypoints.push({
           location:waypoint,
@@ -800,8 +869,13 @@ function drawItinerary(){
     };
     directionsService.route(request, function(response, status) {
       if (status == google.maps.DirectionsStatus.OK) {
-        console.log(response);
+
+        var responseSub = response.routes[0];
+        console.log(responseSub);
+        var procObj = processResults(responseSub);
+        TRP.currentItinerary.setDirections(procObj);
         directionsDisplay.setDirections(response);
+        TRP.updateItineraryView();
       }
     });
 }

@@ -8,7 +8,7 @@ TRP.venueMap = {};//hashmap
 TRP.itinerary = [];
 TRP.map;
 TRP.markers=[];
-
+TRP.markers.init;
 TRP.getDateString = function () {
     var dateNow = new Date();
     var dateString = "" + 
@@ -26,6 +26,7 @@ TRP.Venue = function (prop) {
     this.comments = prop.comments;
     this.url      = prop.url;
     this.id       = prop.id;
+    this.category = prop.category;
 }
 TRP.Comment = function (prop) {
     this.text     = prop.text;
@@ -33,6 +34,16 @@ TRP.Comment = function (prop) {
     this.uLast    = prop.lastName;
     this.photoUrl = prop.photoUrl;
 }
+
+TRP.Marker = function(prop){
+    this.lat= prop.lat;
+    this.lon= prop.lon;
+    this.name= prop.name;
+    this.id= prop.id;
+    this.iconType = prop.iconType;
+    this.iconUrl = prop.iconUrl;
+}
+
 TRP.getSuggestions = function (param) {
 
     var lat = param.lat;
@@ -106,6 +117,18 @@ TRP.getSuggestions = function (param) {
         return returnObj;
     }
 
+    function processCategory(category){
+        var name=category.name;
+        var iconUrl=category.icon;
+        var id=category.id;
+        var returnObj = {
+            name : name,
+            iconUrl : iconUrl,
+            id : id
+        }
+        return returnObj;
+    }
+
     function processData(data) {
         console.log(data);
         var processedData = {}; //hash map by id
@@ -129,6 +152,7 @@ TRP.getSuggestions = function (param) {
             var tips = feedback.tips;
             var thumb = feedback.thumb;
             var id = thisResult.venue.id;
+            var category = processCategory(thisResult.venue.categories[0]);
             var venueData = {
                 'name': name,
                 'rating': rating,
@@ -136,7 +160,8 @@ TRP.getSuggestions = function (param) {
                 'thumbnail' : thumb,
                 'locInfo': location,
                 'comments': tips,
-                'id' : id
+                'id' : id,
+                'category': category
             }
             venuesByRating.push(id);
             processedData[id] = new TRP.Venue(venueData);
@@ -351,7 +376,17 @@ function render_map() {
           lat = TRP.currLoc.lat;
           lon= TRP.currLoc.lon;
           var initial_loc = new google.maps.LatLng(lat, lon);
-          TRP.currLoc=add_marker( lat, lon, 'Your current location', "blue-dot");
+          var markerData = {
+                'lat': lat,
+                'lon': lon,
+                'name': 'Your current location',
+                'id' : null,
+                'iconType': 'blue-dot',
+                'iconUrl': null
+          }
+          TRP.Marker.init= new TRP.Marker(markerData);
+          console.log(TRP.Marker.init);
+          add_marker(TRP.Marker.init);
           TRP.map.setCenter(initial_loc);
         }, function() {
           geolocationErr();
@@ -369,24 +404,37 @@ function render_map() {
          position: new google.maps.LatLng(lat, lon)
        };
       initial_loc=init_map.position;
-      add_marker(lat, lon, 'Default NYC location', "blue-dot");
+          var markerData = {
+                'lat': lat,
+                'lon': lon,
+                'name': 'Default NYC location',
+                'id' : null,
+                'iconType': 'blue-dot',
+                'iconUrl': null
+          }
+      TRP.Marker.init= new TRP.Marker(markerData);
+      console.log(TRP.Marker.init);
+      add_marker(TRP.Marker.init);
       TRP.map.setCenter(initial_loc);
 
     }
 } google.maps.event.addDomListener(window, 'load', render_map);
 
-function add_marker(lat, lon, name, markerType){
+//function add_marker(lat, lon, name, markerType, markerUrl){
+    function add_marker(markerData){
+
+      var id= markerData.id;
       var marker = new MarkerWithLabel({
-        position: new google.maps.LatLng(lat,lon),
+        position: new google.maps.LatLng(markerData.lat,markerData.lon),
         draggable: false,
         raiseOnDrag: false,
         map: TRP.map,
-        labelContent: name,
+        labelContent: markerData.name,
         labelAnchor: new google.maps.Point(22, 0),
         labelClass: "labels", // the CSS class for the label
         labelStyle: {opacity: 0.75}
      });
-    setMarkerType(marker,markerType);
+    setMarkerType(marker,markerData.iconType, markerData.iconUrl);
 
     var maxIndex = google.maps.Marker.MAX_ZINDEX;
        marker.infoWindow = new google.maps.InfoWindow({
@@ -416,15 +464,20 @@ function placeSearchResults(results){
     TRP.map.setZoom(16);
 
     clearMarkers();
-
-    add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location', "blue-dot");
+    add_marker(TRP.Marker.init);
+  //  add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location', "blue-dot");
     for (var i in keysArray){
         var key=keysArray[i];
         var locationObj=results.venueMap[key];
-        var lat= locationObj.coord.lat;
-        var lon= locationObj.coord.lon;
-        var name= locationObj.name;
-        add_marker(lat, lon, name, "yellow");
+        var markerData = {
+            'lat': locationObj.coord.lat,
+            'lon': locationObj.coord.lon,
+            'name': locationObj.name,
+            'id' : locationObj.id,
+            'iconType': 'custom',
+            'iconUrl': locationObj.category.iconUrl
+        }
+        add_marker(markerData);
     }
 }
 function clearMarkers(){
@@ -470,19 +523,14 @@ function drawItinerary(){
         directionsDisplay.setDirections(response);
       }
     });
-
-    // add_marker(TRP.currLoc.lat, TRP.currLoc.lon, 'Your current location', "blue-dot");
-    // for (var k in TRP.itinerary){
-    //     var venue=TRP.itinerary[k];
-    //     var lat =venue.coord.lat;
-    //     var lon = venue.coord.lon;
-    //     var name= venue.name;
-    //     add_marker(lat, lon, name, "yellow");
-    // }
 }
 
-function setMarkerType(marker, markerType){
+function setMarkerType(marker, markerType, markerUrl){
+
     switch (markerType){
+        case "custom":
+            marker.setIcon(markerUrl);
+            break;
         case "blue-dot":
             marker.setIcon('https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png');
             break;

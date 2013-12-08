@@ -593,6 +593,9 @@ TRP.lightboxController.hideSaveName = function (callback) {
 }
 //begin application
 $( function () {
+// initialize here for time being to make itineraries view working
+       TRP.currentItinerary = new TRP.Itinerary();
+//
 
 
     TRP.fileSystem.getSavedData(function (data) {

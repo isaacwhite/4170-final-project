@@ -367,7 +367,7 @@ blockquote {
      border: 1px solid gray;
 }
 .labels.added{
-         color: white;
+     color: white;
      background-color: black;
      font-family: "Lucida Grande", "Arial", sans-serif;
      font-size: 10px;
@@ -409,4 +409,58 @@ blockquote {
 }
 .itinerary .venue {
     clear: both;
+}
+
+footer {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    display:none;
+}
+.save-form {
+    height: 15rem;
+    width: 30%;
+    margin: 0 auto;
+    background-color: white;
+    padding: 2rem;
+    margin-top: 15rem;
+    position:relative;
+    z-index: 4;
+}
+.background-fill {
+    background-color: black;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity:.4
+}
+
+#name-save {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+.save-form #submit {
+    display: block;
+    -webkit-appearance: inherit;
+    background-color: blue;
+    border: none;
+    padding: .5rem;
+    border-radius: .25rem;
+    color: white;
+    margin: 0 auto;
+}
+
+.save-box {
+    width: 100%;
+    padding-right: 2rem;
+    height: 2rem;
+    position: relative;
+    margin: 2rem 0 3rem;
+    border-radius: 1rem;
+    padding: 0;
 }

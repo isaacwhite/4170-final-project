@@ -11,7 +11,9 @@
         <meta name="viewport" content="width=device-width">
 
         <link rel="stylesheet" href="css/normalize.min.css">
+        <link rel="stylesheet" href="http://cdn.staticfile.org/pure/0.3.0/pure-min.css">
         <link rel="stylesheet" href="css/main.css">
+
 
         <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
     </head>
@@ -26,7 +28,7 @@
                 <nav>
                     <h2 class="current-itin">My Itinerary</h2>
                     <ul>
-                        <li><a href="#">Save</a></li>
+                        <li><a class="save-button" href="#">Save</a></li>
                         <li><a href="#">Share</a></li>
                     </ul>
                 </nav>
@@ -100,6 +102,17 @@
                 </article>
             </div> <!-- #main -->
         </div> <!-- #main-container -->
+        <footer>
+            <div class="background-fill"></div>
+            <div class="save-form">
+                <form>
+                        <div class='save-box'>
+                            <input type='text' name='name-field' placeholder='Enter a name for your itinerary.' id='name-save'>
+                        </div>
+                        <input type='submit' value='Save' id='submit'>
+                </form>
+            </div>
+        </footer>
 
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>

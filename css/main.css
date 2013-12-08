@@ -376,6 +376,7 @@ blockquote {
      width: 75px;     
      border: 1px solid gray;
 }
+<<<<<<< HEAD
 .itinerary .distance {
     float: left;
     width: 49%;
@@ -463,4 +464,8 @@ footer {
     margin: 2rem 0 3rem;
     border-radius: 1rem;
     padding: 0;
+}
+
+.reference .venue.active h3{
+    background-color:#4bcbf2;
 }

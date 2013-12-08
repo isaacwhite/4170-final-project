@@ -236,7 +236,7 @@ TRP.Venue.prototype.toHTML = function () {
 
     function venueHTML() {
         var venueString = "<div class='venue"
-        venueString += " id-" + that.id + "'>";
+        venueString += " id-" + that.id + "'id='id-"+that.id+"'>";
         var titleString = "<h3>" + that.name + "</h3>";
         var addButton = "<div class='add-venue'><span>Add venue</span></div>";
         var htmlAddress = that.address;
@@ -746,7 +746,8 @@ function listItinerary(){
 function render_map() {
     var mapOptions = {
         zoom: 11,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        styles:styledMap
       };
       TRP.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
@@ -814,17 +815,29 @@ function render_map() {
         labelContent: markerData.name,
         labelAnchor: new google.maps.Point(22, 0),
         labelClass: "labels "+id, // the CSS class for the label
-        labelStyle: {opacity: 0.75}
+        labelStyle: {opacity: 0.75},
+        url: "#id-"+id
      });
         setMarkerType(marker,markerData.iconType, markerData.iconUrl);
 
-        var maxIndex = google.maps.Marker.MAX_ZINDEX;
-           marker.infoWindow = new google.maps.InfoWindow({
-           content:markerData.name  
-        });
-        //should the infoWindow be kept open?
-        google.maps.event.addListener(marker, 'click', function() {
-        marker.infoWindow.open(TRP.map,marker);
+    var maxIndex = google.maps.Marker.MAX_ZINDEX;
+       marker.infoWindow = new google.maps.InfoWindow({
+       content:markerData.name  
+    });
+    //should the infoWindow be kept open?
+    google.maps.event.addListener(marker, 'click', function() {
+    marker.infoWindow.open(TRP.map,marker);
+    console.log(id);
+    $(".reference .venue").removeClass("active");
+    $(".id-"+id).addClass("active");
+    maxIndex++;
+    //don't know if we want this
+    marker.setZIndex(maxIndex);
+    window.location.href = marker.url;
+    //animate not working
+    //$("article").animate({ scrollTop: $('#id-4c13897db7b9c92822a6a937').offset().top }, 1000);
+  });
+    google.maps.event.addListener(marker, 'mouseover', function(){
         maxIndex++;
         //don't know if we want this
         marker.setZIndex(maxIndex);
@@ -963,3 +976,155 @@ function setMarkerType(marker, markerType, markerUrl){
     }    
 
 }
+//modified map styles from http://snazzymaps.com/style/19/subtle
+var styledMap=
+[
+    {
+        "featureType": "poi",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "stylers": [
+            {
+                "saturation": -70
+            },
+            {
+                "lightness": 37
+            },
+            {
+                "gamma": 1.15
+            }
+        ]
+    },
+    {
+        "elementType": "labels",
+        "stylers": [
+            {
+                "gamma": 0.26
+            },
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "stylers": [
+            {
+                "lightness": 0
+            },
+            {
+                "saturation": 0
+            },
+            {
+                "hue": "#ffffff"
+            },
+            {
+                "gamma": 0
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "labels.text.stroke",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "road.arterial",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "lightness": 20
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "lightness": 50
+            },
+            {
+                "saturation": 0
+            },
+            {
+                "hue": "#ffffff"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.province",
+        "stylers": [
+            {
+                "visibility": "on"
+            },
+            {
+                "lightness": -50
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.province",
+        "elementType": "labels.text.stroke",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+     {
+         "featureType": "poi.business",
+         "elementType": "labels.text",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "poi.business",
+        "elementType": "labels.icon",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "poi.place_of_worship",
+        "elementType": "labels.text",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "poi.place_of_worship",
+        "elementType": "labels.icon",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+
+    {
+        "featureType": "administrative.province",
+        "elementType": "labels.text",
+        "stylers": [
+            {
+                "lightness": 20
+            }
+        ]
+    }
+]

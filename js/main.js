@@ -646,12 +646,17 @@ $( function () {
         var curItin = TRP.currentItinerary;
         var venueObj = $(this).closest(".venue");
         var mapID = venueObj[0].classList[1];
+        var markerID=mapID.substring(3);
+        var curMarker= TRP.markersMap[markerID];
+        setMarkerType(curMarker, "red-pushpin",null);
+        console.log(curMarker);
         mapID = mapID.substring(3);
         console.log(mapID);
         curItin.addEvent(TRP.venueMap[mapID]);
         venueObj.addClass("added");
         venueObj.prepend(TRP.addedObject);
         console.log(curItin);
+        
         e.stopPropagation();
     });
     $(document).on('click', '.venue .added-label h4', function(e) { // Make your changes here
@@ -821,8 +826,12 @@ function render_map() {
         labelStyle: {opacity: 0.75},
         url: "#id-"+id
      });
+      if (TRP.currentItinerary.eventHash[id]){
+        setmarkerType(marker, "red-pushpin", null);
+      }
+      else{
         setMarkerType(marker,markerData.iconType, markerData.iconUrl);
-
+      }  
     var maxIndex = google.maps.Marker.MAX_ZINDEX;
        marker.infoWindow = new google.maps.InfoWindow({
        content:markerData.name  

@@ -12,7 +12,6 @@ TRP.markersMap = {};
 TRP.markerInit;
 TRP.fileSystem = {};
 TRP.addedObject = "<div class='added-label'><h2>Added to itinerary</h2><h4>Remove from itinerary</h4></div>";
-TRP.saveData;
 TRP.currentItinerary;
 
 TRP.getDateString = function () {
@@ -188,6 +187,10 @@ TRP.toggleSearchBox = function () {
             TRP.animating = true;
             $(".exit").animate({'opacity':0},200,function () {
                 $(".search-form").animate({'height':'0%'},400, function () {
+                    $(".search-form .venue").each(function() {
+                        $(this).remove();
+                    })
+                    $("#search-box").val("");
                     TRP.animating = false;
                     TRP.searchOpen = false;
                 });
@@ -237,6 +240,9 @@ TRP.Venue.prototype.toHTML = function () {
     function venueHTML() {
         var venueString = "<div class='venue"
         venueString += " id-" + that.id + "'id='id-"+that.id+"'>";
+        if(TRP.currentItinerary.eventHash[that.id]) {
+            venueString += TRP.addedObject;
+        }
         var titleString = "<h3>" + that.name + "</h3>";
         var addButton = "<div class='add-venue'><span>Add venue</span></div>";
         var htmlAddress = that.address;
@@ -353,6 +359,8 @@ TRP.fileSystem.getSavedData = function (callback) {
     }
 }
 TRP.fileSystem.saveData = function (callback) {
+
+    console.log("Saving data!");
     function writeData(contentString) {
         function deleteFile(callback) {
             TRP.filesys.root.getFile(TRP.filename, {create: true}, function (fileEntry) {
@@ -367,7 +375,7 @@ TRP.fileSystem.saveData = function (callback) {
                         callback(false);
                     };
                     var contentBlob = new Blob(content, {type: 'text/plain'});
-                    fileWriter.write(contentBlob, callback(true));
+                    fileWriter.write(contentBlob,callback);
                 });
             });
         }
@@ -446,6 +454,9 @@ TRP.Itinerary = function (name,eventHash,orderArray) {
     }
 }
 //adds an array of events onto the itinerary
+/**
+ * @param events an array of venue objects to be added to the itinerary
+ */
 TRP.Itinerary.prototype.addEvents = function (events) {
     var position = this.orderArray.length;
     for (var i = 0; i < events.length; i++) {
@@ -472,6 +483,9 @@ TRP.Itinerary.prototype.moveEventPos = function (venueID,positionDestination) {
     this.orderArray.concat(movingValue,orderEnd);
     this.refreshPositionRef();
 }
+/**
+ * @param ids an array of venue hashes to be removed
+ */
 TRP.Itinerary.prototype.removeEvents = function (ids) {
     for (var i = 0; i < ids.length; i++) {
         var eventID = ids[i];
@@ -482,6 +496,7 @@ TRP.Itinerary.prototype.removeEvents = function (ids) {
     }
     this.refreshPositionRef()
 }
+
 TRP.Itinerary.prototype.refreshPositionRef = function() {
     var orderArray = this.orderArray;
     for (var i = 0; i < orderArray.length; i++) {
@@ -601,6 +616,7 @@ $( function () {
     TRP.fileSystem.getSavedData(function (data) {
         TRP.data = data;
         // if(!data.itineraries) {
+            console.log("about to initialize");
             TRP.currentItinerary = new TRP.Itinerary();
             //consider the object corrupt
             var itineraries = {};
@@ -642,7 +658,7 @@ $( function () {
         e.preventDefault();
     });
     
-    $(document).on('click', '.venue .add-venue', function(e) { // Make your changes here
+    $(document).on('click', '.venue .add-venue', function (e) { // Make your changes here
         var curItin = TRP.currentItinerary;
         var venueObj = $(this).closest(".venue");
         var mapID = venueObj[0].classList[1];
@@ -685,26 +701,26 @@ $( function () {
         console.log(activeMarker);
         $(".labels").removeClass("active");
         $(".labels."+mapID).addClass("active");
-        
-
-      //  TRP.itinerary.push(TRP.venueMap[mapID]);
-       // venueObj.addClass("added");
-      //  console.log(TRP.itinerary);
     });
-    $(".save-form #submit").click( function (e) { // Make your changes here
+    $(".save-form form #submit").click( function (e) { // Make your changes here
+        e.preventDefault();
         var saveName = $(".save-box #name-save").val();
         if( (saveName !== "") && (!(TRP.data.itineraries[saveName])) ) {
             TRP.currentItinerary.name = saveName;
             TRP.lightboxController.hideSaveName()
-            TRP.updateData(TRP.saveData());
+            var dataResult = TRP.updateData();
+            if(dataResult) {
+                TRP.fileSystem.saveData(function() {
+                    alert("The file was saved");
+                });
+            }
             
         } else if (saveName !== "") {
             console.log("That itinerary name already exists. Want to overwrite?");
         } else {
             console.log("Please enter a save name");
         }
-        e.stopPropagation();
-        e.preventDefault();
+        // e.stopPropagation();
     });
     $(".save-button").click( function (e) {
         var writeFn  = TRP.fileSystem.saveData;

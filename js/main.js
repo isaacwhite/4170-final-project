@@ -13,7 +13,6 @@ TRP.markerInit;
 TRP.fileSystem = {};
 TRP.addedObject = "<div class='added-label'><h2>Added to itinerary</h2><h4>Remove from itinerary</h4></div>";
 TRP.currentItinerary;
-
 TRP.getDateString = function () {
     var dateNow = new Date();
     var dateString = "" + 
@@ -127,7 +126,6 @@ TRP.getSuggestions = function (param) {
         return returnObj;
     }
     function processData(data) {
-        console.log(data);
         var processedData = {}; //hash map by id
         var statusCode = data.meta.code;
         var resultCount = data.response.totalResults;
@@ -208,7 +206,6 @@ TRP.updateItineraryView = function() {
 
     $("article .itinerary").remove();
     $("article .end").before(htmlString);
-
 }
 TRP.Venue.prototype.toHTML = function () {
     var returnString = "";
@@ -317,8 +314,6 @@ TRP.fileSystem.getSavedData = function (callback) {
             };
             fetchEntries();
         } catch(e) {
-
-            callback(emptyObj);
             reportError("error reading");
         }
     }
@@ -329,8 +324,8 @@ TRP.fileSystem.getSavedData = function (callback) {
                 if(entries[i].name === TRP.filename) {
                     thisEntry = entries[i].name;
                     return thisEntry;
-                } 
-            }
+                }   
+            } 
             //if we made it this far, it means we failed.
             return false;
         }
@@ -341,13 +336,11 @@ TRP.fileSystem.getSavedData = function (callback) {
                 TRP.filesys.root.getFile(name, {}, function (fileEntry) { //look up what is going on with the empty object in params
                     fileEntry.file(function (file) {
                         var reader = new FileReader();
-                        // console.log(reader);
                         reader.onload = function (e) {
                             var fileContent = this.result;
                             if(fileContent !== "") {
                                 var savedData = $.parseJSON(fileContent);
                                 if(savedData.itineraries) {
-                                    console.log(savedData)
                                     callback(savedData);
                                 } else {
                                     reportError("file was empty!");
@@ -363,6 +356,8 @@ TRP.fileSystem.getSavedData = function (callback) {
             } catch(e) {
                 reportError("error processing");
             }
+        } else {
+            reportError("The file does not yet exist");
         }
     }
 
@@ -373,8 +368,6 @@ TRP.fileSystem.getSavedData = function (callback) {
     }
 }
 TRP.fileSystem.saveData = function (callback) {
-
-    console.log("Saving data!");
     function writeData(contentString) {
         function deleteFile(callback) {
             TRP.filesys.root.getFile(TRP.filename, {create: true}, function (fileEntry) {
@@ -413,7 +406,6 @@ TRP.PageObject = function() {
     this.pageHTML = [];
 }
 TRP.SearchObject.prototype.ingestData = function (data) {
-    console.log(data);
     var orderedIDs = data.venueSort;
     this.resultCount = data.resultCount;
     this.searchHistory.push(data.searchTerm);
@@ -441,11 +433,8 @@ TRP.SearchObject.prototype.ingestData = function (data) {
         
     }
     this.currentPage = 0;
-    console.log(this);
     $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
     this.offset = 0;
-    console.log(data);
-    console.log(this);
     //place search results on map
     var displayed = this.searchPages[this.currentPage].pages;
     placeSearchResults(displayed);
@@ -520,7 +509,6 @@ TRP.Itinerary.prototype.refreshPositionRef = function() {
 }
 TRP.Itinerary.prototype.setDirections = function(prop) {
   this.mapsData = prop; //keep it simple, processed already.
-  console.log(this);
 }
 TRP.SearchObject.prototype.pageForward = function () {
     if(this.currentPage < this.searchPages.length-1){
@@ -534,7 +522,6 @@ TRP.SearchObject.prototype.pageForward = function () {
         this.searchPages[lastPage].pageHTML = pageHTML;
         $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
         var displayed = this.searchPages[this.currentPage].pages;
-        console.log(displayed);
         placeSearchResults(displayed);
     }
 }
@@ -550,11 +537,9 @@ TRP.SearchObject.prototype.pageBackward = function () {
         this.searchPages[lastPage].pageHTML = pageHTML;
         $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
         var displayed = this.searchPages[this.currentPage].pages;
-        console.log(displayed);
         placeSearchResults(displayed);
     }
 }
-
 TRP.Itinerary.prototype.toHTML = function() {
     function venueToHTML(venue) {
         var htmlString = "<div class='venue'>";
@@ -591,7 +576,6 @@ TRP.Itinerary.prototype.toHTML = function() {
 
     return htmlString;
 }
-
 TRP.updateData = function() {
     var name = TRP.currentItinerary.name;
     if(name) {
@@ -601,17 +585,14 @@ TRP.updateData = function() {
         return false;
     }
 }
-
 TRP.lightboxController = {};
 TRP.lightboxController.showSaveName = function (callback) {
     $("footer").css({'opacity':0,'display':'inherit'}).animate({'opacity':1},500,function() {
-        console.log("finished animating");
         if(callback) {
             callback();
         }
     });
 }
-
 TRP.lightboxController.hideSaveName = function (callback) {
     $("footer").animate({'opacity':0},500,function() {
         $(this).css({'display':'none'});
@@ -622,24 +603,12 @@ TRP.lightboxController.hideSaveName = function (callback) {
 }
 //begin application
 $( function () {
-// initialize here for time being to make itineraries view working
-       TRP.currentItinerary = new TRP.Itinerary();
-//
-
-
     TRP.fileSystem.getSavedData(function (data) {
-        console.log("callback called");
-        console.log(data);
+        TRP.currentItinerary = new TRP.Itinerary();
         TRP.data = data;
-        // if(!data.itineraries) {
-            console.log("about to initialize");
-            TRP.currentItinerary = new TRP.Itinerary();
-            //consider the object corrupt
-            // if(!TRP.data.)
-            // var itineraries = {};
-            // TRP.data = {};
-            // TRP.data.itineraries = itineraries;
-        // }
+        
+        //we need a check here based on whether itineraries is empty or not.
+    // }
     });
 
     TRP.searchHandler = new TRP.SearchObject();
@@ -680,32 +649,25 @@ $( function () {
         var venueObj = $(this).closest(".venue");
         var mapID = venueObj[0].classList[1];
         mapID = mapID.substring(3);
-        console.log(mapID);
         curItin.addEvent(TRP.venueMap[mapID]);
         venueObj.addClass("added");
         venueObj.prepend(TRP.addedObject);
-        console.log(curItin);
         e.stopPropagation();
     });
     $(document).on('click', '.venue .added-label h4', function(e) { // Make your changes here
         var curItin = TRP.currentItinerary;
-        console.log("clicked on the remove from itinerary button!");
         var venueObj = $(this).closest(".venue");
         var mapID = venueObj[0].classList[1];
         mapID = mapID.substring(3);
-        console.log(mapID);
         curItin.removeEvent(mapID);
         venueObj.removeClass("added");
         venueObj.find(".added-label").remove();
-        console.log(curItin);
         e.stopPropagation();
     });
     $(document).on('click', '.venue', function() { // Make your changes here
-        console.log("clicked on the results card!");
         var venueObj = $(this).closest(".venue");
         var mapID = venueObj[0].classList[1];
         mapID = mapID.substring(3);
-        console.log(mapID);
         var activeMarker= TRP.markersMap[mapID];
         var lat=activeMarker.position.pb;
         var lon=activeMarker.position.qb;
@@ -983,7 +945,6 @@ function drawItinerary(){
       if (status == google.maps.DirectionsStatus.OK) {
 
         var responseSub = response.routes[0];
-        console.log(responseSub);
         var procObj = processResults(responseSub);
         TRP.currentItinerary.setDirections(procObj);
         directionsDisplay.setDirections(response);

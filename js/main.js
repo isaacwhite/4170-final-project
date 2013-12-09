@@ -397,11 +397,11 @@ TRP.fileSystem.saveData = function (callback) {
         callback(false);
     }
 }
-TRP.SearchObject = function() {
+TRP.SearchObject = function () {
     this.resultCount = 0;
     this.searchHistory = [];
 };
-TRP.PageObject = function() {
+TRP.PageObject = function () {
     this.pages = [];
     this.pageHTML = [];
 }
@@ -456,7 +456,6 @@ TRP.Itinerary = function (name,eventHash,orderArray) {
         this.orderArray = [];
     }
 }
-//adds an array of events onto the itinerary
 /**
  * @param events an array of venue objects to be added to the itinerary
  */
@@ -470,10 +469,16 @@ TRP.Itinerary.prototype.addEvents = function (events) {
         position++;
     }
 }
+/**
+ * @param event a single venue object
+ */
 TRP.Itinerary.prototype.addEvent = function (event) {
     var arrayTransform = [event];
     this.addEvents(arrayTransform);
 }
+/**
+ * @param event a single venue id
+ */
 TRP.Itinerary.prototype.removeEvent = function (event) {
     var arrayTransform = [event];
     this.removeEvents(arrayTransform);
@@ -508,7 +513,35 @@ TRP.Itinerary.prototype.refreshPositionRef = function() {
     }
 }
 TRP.Itinerary.prototype.setDirections = function(prop) {
-  this.mapsData = prop; //keep it simple, processed already.
+    function processResults(results) {
+        function thisLeg(distance,duration,transitMode,steps) {
+            this.distance = distance;
+            this.duration = duration;
+            this.transitMode = transitMode;
+            this.directions = steps;
+        }
+        var returnVal = {};
+        returnVal.directions = [];
+        var legs = results.legs;
+        for (var i = 0; i < legs.length; i++) {
+            console.log(legs[i]);
+           var distance = legs[i].distance;
+           var duration = legs[i].duration;
+           var steps = [];
+           var transitMode = legs[i].steps[0].travel_mode.toLowerCase();
+           console.log(legs[i]);
+           for (var j = 0; j < legs[i].steps.length; j++) {
+            steps.push(legs[i].steps[j].instructions);
+           }
+           var procObj = new thisLeg(distance,duration,transitMode,steps);
+           returnVal.directions.push(procObj);
+        }
+        returnVal.waypointOrder = results.waypoint_order;//don't know what this is, but it looks useful.
+
+        return returnVal;
+    }
+    var mapData = processResults(prop);
+    this.mapsData = mapData; //keep it simple, processed already.
 }
 TRP.SearchObject.prototype.pageForward = function () {
     if(this.currentPage < this.searchPages.length-1){
@@ -882,33 +915,7 @@ function clearMarkers(){
 
 function drawItinerary(){
 // directions code modified from https://developers.google.com/maps/documentation/javascript/directions
-    function processResults(results) {
-        function thisLeg(distance,duration,transitMode,steps) {
-            this.distance = distance;
-            this.duration = duration;
-            this.transitMode = transitMode;
-            this.directions = steps;
-        }
-        var returnVal = {};
-        returnVal.directions = [];
-        var legs = results.legs;
-        for (var i = 0; i < legs.length; i++) {
-            console.log(legs[i]);
-           var distance = legs[i].distance;
-           var duration = legs[i].duration;
-           var steps = [];
-           var transitMode = legs[i].steps[0].travel_mode.toLowerCase();
-           console.log(legs[i]);
-           for (var j = 0; j < legs[i].steps.length; j++) {
-            steps.push(legs[i].steps[j].instructions);
-           }
-           var procObj = new thisLeg(distance,duration,transitMode,steps);
-           returnVal.directions.push(procObj);
-        }
-        returnVal.waypointOrder = results.waypoint_order;//don't know what this is, but it looks useful.
-
-        return returnVal;
-    }
+    
 
     var itinArray = [];
     for(var i = 0; i < TRP.currentItinerary.orderArray.length; i++) {
@@ -945,8 +952,7 @@ function drawItinerary(){
       if (status == google.maps.DirectionsStatus.OK) {
 
         var responseSub = response.routes[0];
-        var procObj = processResults(responseSub);
-        TRP.currentItinerary.setDirections(procObj);
+        TRP.currentItinerary.setDirections(responseSub);
         directionsDisplay.setDirections(response);
         TRP.updateItineraryView();
       }

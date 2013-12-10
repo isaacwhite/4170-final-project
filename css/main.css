@@ -417,17 +417,12 @@ footer {
     width: 100%;
     display:none;
 }
-<<<<<<< HEAD
 .save-form {
     display:none;
 }
 
-.save-form.visible {
-    display:inherit;
-=======
 .save-form,
 .load-box {
->>>>>>> 469fb3b826cec0644613936881496e1100775f68
     height: 15rem;
     width: 30%;
     margin: 0 auto;

@@ -41,9 +41,9 @@ TRP.Itinerary = function (prop) {
         //so no processing necessary.
         this.name = prop.name;
         this.eventHash = prop.eventHash;
-        this.orderArray = this.orderArray;
-        if(prop.mapData) {
-            this.mapData = prop.mapData;
+        this.orderArray = prop.orderArray;
+        if(prop.mapsData) {
+            this.mapsData = prop.mapsData;
         }
     } else {
         this.name;
@@ -240,10 +240,8 @@ TRP.indicateLoad = function (url) {
 }
 TRP.updateItineraryView = function() {
     var htmlString = TRP.currentItinerary.toHTML();
-
     $("article .itinerary").remove();
     $("article .end").before(htmlString);
-    drawItinerary();
 }
 TRP.Marker.prototype.toHTML = function () {
     var htmlString;
@@ -650,6 +648,17 @@ TRP.Itinerary.fn.toHTML = function() {
 
     return htmlString;
 }
+TRP.loadItinerary = function(name) {
+    if (!TRP.modified) {
+        var itineraryData = TRP.data.itineraries[name];
+        console.log(itineraryData);
+        var loadedItinerary = new TRP.Itinerary(itineraryData);
+        console.log(loadedItinerary);
+        TRP.currentItinerary = loadedItinerary;
+        drawItinerary();
+        // TRP.updateItineraryView();
+    }
+}
 TRP.updateData = function() {
     var name = TRP.currentItinerary.name;
     if(name) {
@@ -832,7 +841,7 @@ $( function () {
                 TRP.currentItinerary.moveEventPos(source,destination-1);
             }
         }
-        TRP.updateItineraryView();
+        drawItinerary();
     })
 
     TRP.searchHandler = new TRP.SearchObject();
@@ -920,8 +929,7 @@ $( function () {
     $(document).on('click','.load-box a', function(e) {
         var itineraryName = ($(this).text());
         if(!($(this).hasClass("new-itinerary"))){
-            //it's not the new button
-            //load the itinerary
+            TRP.loadItinerary(itineraryName);
         } else {
             //proceed as normal, fade out the save-box
         }

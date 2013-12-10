@@ -17,6 +17,18 @@ body {
     z-index: 12;
     background-color: black;
 }
+.help {
+    z-index: 13;
+    position: relative;
+    background-image: url(../img/black_60.png);
+    padding: 4rem 20%;
+    overflow-y: auto;
+    color: white;
+    line-height: 1.4;
+}
+.help a {
+    color: white;
+}
 .welcome-contain {
     display: none;
     margin: 10% auto;
@@ -447,7 +459,8 @@ footer {
     width: 100%;
     display:none;
 }
-.save-form {
+.save-form,
+.help {
     display:none;
 }
 .save-form form:after,
@@ -585,6 +598,7 @@ footer {
     z-index: 10;
     width: 100%;
     background-image: url(../img/black_60.png);
+    overflow-y: auto;
 }
 .itinerary .venue.draggable:hover {
     cursor: url(../img/openhand.cur) 4 4, move;

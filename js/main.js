@@ -794,7 +794,15 @@ TRP.lightboxControl = function (adjustment, callback) {
             }
             break;
         case "intro":
-            //here we'll show the intro text and the help info before depositing users at the new itinerary start point.
+            if($(".help").hasClass("visible")) {
+                fadeOut(".help", function() {
+                    if(callback) {callback();};
+                });
+            } else {
+                fadeIn(".help",function() {
+                    if(callback) {callback();};
+                });
+            }
             break;
         case "welcome":
             //show the pretty start page.
@@ -883,10 +891,8 @@ $( function () {
             });
         } else {
             //TODO Show the help intro
-            console.log("HELP MEEEEEE!!!");
             TRP.lightboxControl("welcome",function() {
-                TRP.lightboxControl("image");
-                TRP.lightboxControl("lightbox");
+                TRP.lightboxControl("intro");
             });
         } 
         // console.log(linkClick);
@@ -1183,6 +1189,13 @@ $( function () {
         })
         e.preventDefault();
     });
+    $(".help .get-started").click( function (e) {
+        TRP.lightboxControl("intro",function() {
+            TRP.lightboxControl("image");
+            TRP.lightboxControl("lightbox");
+        });
+        e.preventDefault();
+    })
     //an event handler for in progress functionality to change locations
     $(document).on('click','.location-switch', function (e) {
         $(this).closest(".venue").css({'overflow':'hidden','max-height':'1000px'}).animate({'max-height':'0px'},500,function() {

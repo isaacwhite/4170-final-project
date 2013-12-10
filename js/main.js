@@ -503,17 +503,22 @@ TRP.SearchObject.fn.ingestData = function (data) {
     if (TRP.searchHandler.searchPages.length>1){
         var viewPage= this.currentPage+1;
         var pagingHTML="";
-        pagingHTML+="<div class='paging-container'>";
-        pagingHTML+="<div class='page-backward'> < </div>";
-        pagingHTML+="<div class='page-number'> Page "+viewPage+" of "+TRP.searchHandler.searchPages.length+" </div>";
-        pagingHTML+="<div class='page-forward'> > </div> </div>";
+        pagingHTML+="<ul class='paging-container pure-paginator'>";
+        pagingHTML+="<li><a class='page-backward pure-button prev' href='#'>&#171;</a></li>";
+        pagingHTML+="<li><a class='page-number pure-button pure-button-active' href='#'> Page "+viewPage+" of "+TRP.searchHandler.searchPages.length+" </a></li>";
+        pagingHTML+="<li><a class='page-forward pure-button next' href='#'>&#187;</a></li> </ul>";
         $(".reference").append(pagingHTML);
-         $(".page-forward").click(function () {
-             TRP.searchHandler.pageForward();
-         });
-         $(".page-backward").click(function () {
-             TRP.searchHandler.pageBackward();
-         });
+         $(".page-forward").click(function (e) {
+               TRP.searchHandler.pageForward();
+             e.preventDefault();
+           });
+         $(".page-backward").click(function (e) {
+               TRP.searchHandler.pageBackward();
+             e.preventDefault();
+           });
+         $(".page-number").click(function (e) {
+            e.preventDefault();
+         })
     }
     $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
 
@@ -623,9 +628,9 @@ TRP.Itinerary.fn.setDirections = function(prop) {
 }
 TRP.SearchObject.fn.pageForward = function () {
     
-         $(".more-results").click(function () {
-             TRP.searchHandler.pageForward();
-         });
+    $(".more-results").click(function () {
+         TRP.searchHandler.pageForward();
+    });
 
     if(this.currentPage < this.searchPages.length-1){
         var viewPage= this.currentPage+2;
@@ -825,9 +830,7 @@ TRP.getLoadHTML = function () {
 }
 //begin application
 $( function () {
-    function logEvents(e) {
-        console.log(e);
-    }
+    //get the saved data if there is any.
     TRP.fileSystem.getSavedData(function (data) {
         TRP.currentItinerary = new TRP.Itinerary();
         TRP.data = data;
@@ -841,9 +844,6 @@ $( function () {
             $(".welcome-contain").append("<p><a href='#'>Click here to get started</a>.</p>");
             TRP.lightboxControl("welcome");
         }
-        
-        //we need a check here based on whether itineraries is empty or not.
-    // }
     });
 
     $(document).on('click','.welcome-contain a',function(e) {
@@ -1071,7 +1071,7 @@ $( function () {
                 $(this).remove();
             });
         }
-    })
+    });
     $(".save-form form .submit").click( function (e) { // Make your changes here
         function saveData(saveName,callback) {
             TRP.currentItinerary.name = saveName;
@@ -1123,12 +1123,15 @@ $( function () {
         // e.stopPropogation();
         e.preventDefault();
     });
-    $(".load-button").click( function (e ) {
+    $(".load-button").click( function (e) {
         TRP.lightboxControl("lightbox",function () {
             TRP.lightboxControl("load");
         })
         e.preventDefault();
-    })
+    });
+    $(".location-switch").click( function (e) {
+
+    });
 });
 $(".exit").click( function (){
     clearMarkers();
@@ -1319,7 +1322,7 @@ function drawItinerary(){
         destination: destination,
         waypoints: waypoints,
         optimizeWaypoints: false,
-        travelMode: google.maps.TravelMode.WALKING,
+        travelMode: google.maps.TravelMode.DRIVING,
        unitSystem: google.maps.UnitSystem.IMPERIAL
     };
     TRP.directionsService.route(request, function(response, status) {

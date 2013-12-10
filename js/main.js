@@ -1224,7 +1224,7 @@ function drawItinerary(){
 
     }
     directionsDisplay = new google.maps.DirectionsRenderer();
-    directionDisplay.setMap(null);
+    directionsDisplay.setMap(null);
     directionsDisplay.setMap(TRP.map);
     var directionsService = new google.maps.DirectionsService();
 

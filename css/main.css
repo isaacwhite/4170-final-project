@@ -340,9 +340,10 @@ blockquote {
     height:100%;
 }
 
-#infoWindow{
-    height:3rem;
-    overflow:none;
+.gm-style-iw{
+    height:150px;
+    width:200px;
+    overflow:auto;
 }
 
 .labels {
@@ -415,9 +416,6 @@ footer {
     position: fixed;
     height: 100%;
     width: 100%;
-    display:none;
-}
-.save-form {
     display:none;
 }
 

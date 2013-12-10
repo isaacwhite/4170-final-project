@@ -212,18 +212,21 @@ TRP.toggleSearchBox = function () {
         if(!TRP.animating) {
             TRP.animating = true;
             var height = TRP.searchHandler.calcHeight();
-
-            $(".search-form").animate({'height':height},400,function () {
-                $(this).css({'padding-bottom':'4em'});
-                $(".exit").animate({'opacity':1},250, function () {
-                    TRP.animating = false;
-                    TRP.searchOpen = true;
+            $("article").scrollTo("0px",250,{axis:'y',onAfter : function() {
+                $("article").css({'overflow':'hidden'});
+                $(".search-form").animate({'height':height},400,function () {
+                    $(this).css({'padding-bottom':'4em'});
+                    $(".exit").animate({'opacity':1},250, function () {
+                        TRP.animating = false;
+                        TRP.searchOpen = true;
+                    });
                 });
-            });
+            }});
         } //no else, just pretend it wasn't requested.
     } else {
         if(!TRP.animating) {
             TRP.animating = true;
+            $("article").css({'overflow-y':'auto'});
             $(".exit").animate({'opacity':0},200,function () {
                 $(".search-form").css({'padding-bottom':0}).animate({'height':'0px'},400, function () {
                     $(".search-form .venue").each(function() {
@@ -494,25 +497,30 @@ TRP.SearchObject.fn.ingestData = function (data) {
         var currentPage = Math.floor((i + offset) / 10)
         this.searchPages[currentPage].pages.push(thisID);
         thisHTML = thisVenue.toHTML();
-        this.searchPages[currentPage].pageHTML += thisHTML;
-        
+        this.searchPages[currentPage].pageHTML += thisHTML; 
     }
     this.currentPage = 0;
-    $(".venue").remove();
+    $(".search-form .venue").remove();
+    $(".paging-container").remove();
     if (TRP.searchHandler.searchPages.length>1){
         var viewPage= this.currentPage+1;
         var pagingHTML="";
-        pagingHTML+="<div class='paging-container'>";
-        pagingHTML+="<div class='page-backward'> < </div>";
-        pagingHTML+="<div class='page-number'> Page "+viewPage+" of "+TRP.searchHandler.searchPages.length+" </div>";
-        pagingHTML+="<div class='page-forward'> > </div> </div>";
+        pagingHTML+="<ul class='paging-container pure-paginator'>";
+        pagingHTML+="<li><a class='page-backward pure-button prev' href='#'>&#171;</a></li>";
+        pagingHTML+="<li><a class='page-number pure-button pure-button-active' href='#'> Page "+viewPage+" of "+TRP.searchHandler.searchPages.length+" </a></li>";
+        pagingHTML+="<li><a class='page-forward pure-button next' href='#'>&#187;</a></li> </ul>";
         $(".reference").append(pagingHTML);
-         $(".page-forward").click(function () {
+         $(".page-forward").click(function (e) {
              TRP.searchHandler.pageForward();
+             e.preventDefault();
          });
-         $(".page-backward").click(function () {
+         $(".page-backward").click(function (e) {
              TRP.searchHandler.pageBackward();
+             e.preventDefault();
          });
+         $(".page-number").click(function (e) {
+            e.preventDefault();
+         })
     }
     $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
 
@@ -621,11 +629,9 @@ TRP.Itinerary.fn.setDirections = function(prop) {
     this.mapsData = mapData; //keep it simple, processed already.
 }
 TRP.SearchObject.fn.pageForward = function () {
-    
-         $(".more-results").click(function () {
-             TRP.searchHandler.pageForward();
-         });
-
+     $(".more-results").click(function () {
+         TRP.searchHandler.pageForward();
+     });
     if(this.currentPage < this.searchPages.length-1){
         var viewPage= this.currentPage+2;
         $(".page-number").empty();
@@ -641,7 +647,6 @@ TRP.SearchObject.fn.pageForward = function () {
         $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
         var displayed = this.searchPages[this.currentPage].pages;
         placeSearchResults(displayed);
-
     }
 }
 TRP.SearchObject.fn.pageBackward = function () {
@@ -698,7 +703,8 @@ TRP.Itinerary.fn.toHTML = function() {
         }
 
     }
-
+    htmlString += "<div class='leg last'><div class='connector'></div></div>";
+    htmlString += "<div class='venue add-item'><h4>Add an item + </h4></div>"
 
     htmlString += "</div>";
 
@@ -902,8 +908,9 @@ $( function () {
 
     TRP.searchHandler = new TRP.SearchObject();
 
-    $(".add-item").click(function () {
+    $(document).on('click',".add-item",'click', function (e) {
         TRP.toggleSearchBox();
+        e.stopPropagation();
     });
     $(".exit").click(function () {
         TRP.toggleSearchBox();

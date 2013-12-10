@@ -598,3 +598,20 @@ footer {
     margin: 0;
     font-size: .925rem;
 }
+
+.pure-paginator, .pure-paginator * {
+    box-sizing: content-box;
+}
+.pure-paginator .pure-button {
+    padding: 0.4em 1.4em;
+}
+
+.pure-paginator {
+    margin: 1rem 0;
+    font-size: 1.1rem;
+    color: #d7d7d7;
+}
+.leg.last .connector {
+    display: block;
+    float: none;
+}

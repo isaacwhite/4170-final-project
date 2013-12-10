@@ -19,7 +19,7 @@ TRP.confirmText = "<h3>That itinerary name already exists. Are you sure you want
 TRP.directionsDisplay = new google.maps.DirectionsRenderer();
 TRP.directionsService = new google.maps.DirectionsService();
 TRP.deleteConfirm = "<div class='delete-confirm'><h4>Are you sure you want to delete this itinerary?<br>This operation cannot be undone.</h4><div class='confirm-buttons'><input type='submit' value='Yes' class='submit'><input type='button' value='No' class='cancel'></div></div>";
-
+TRP.changeLocationForm = "<div class='location-form'><form><input type='text' name='name-field' placeholder='The name of your location' id='loc-name'><input type='text' name='address-field' placeholder='Your location&#39;s address' id='addr-save'><div class='submit-buttons'><input type='submit' value='Save' class='submit'><input type='button' value='Cancel' class='cancel'></div></form></div>";
 TRP.SearchObject = function () {
     this.resultCount = 0;
     this.searchHistory = [];
@@ -1073,6 +1073,19 @@ $( function () {
             });
         }
     });
+    $(document).on('click','.location-form .submit-buttons input', function(e) {
+        if($(this).val() === "Save") {
+            console.log("change the search value");
+        } else {
+            console.log("put it back");
+            $(this).closest(".venue").animate({'max-height':'0px'},500, function(e) {
+                $(this).find(".location-form").remove();
+                $(this).append(TRP.locHTML);
+                $(this).animate({'max-height':'1000px'},500);
+            })
+        }
+        e.preventDefault();
+    })
     $(".save-form form .submit").click( function (e) { // Make your changes here
         function saveData(saveName,callback) {
             TRP.currentItinerary.name = saveName;
@@ -1136,8 +1149,18 @@ $( function () {
         })
         e.preventDefault();
     });
-    $(".location-switch").click( function (e) {
-
+    $(document).on('click','.location-switch', function (e) {
+        $(this).closest(".venue").css({'overflow':'hidden','max-height':'1000px'}).animate({'max-height':'0px'},500,function() {
+            var oldHTML = "";
+            oldHTML += $(this).find("h4")[0].outerHTML;
+            oldHTML += $(this).find("h5")[0].outerHTML; 
+            TRP.locHTML = oldHTML;
+            $(this).find("h4").remove();
+            $(this).find("h5").remove();
+            $(this).append(TRP.changeLocationForm);
+            $(this).animate({'max-height':'1000px'},500,function(){});
+        });
+        e.preventDefault();
     });
 });
 $(".exit").click( function (){

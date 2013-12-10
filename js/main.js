@@ -243,8 +243,8 @@ TRP.updateItineraryView = function() {
 
     $("article .itinerary").remove();
     $("article .end").before(htmlString);
+    drawItinerary();
 }
-
 TRP.Marker.prototype.toHTML = function () {
     var htmlString;
 
@@ -257,7 +257,6 @@ TRP.Marker.prototype.toHTML = function () {
     htmlString= infoHTML() + buttonHTML();
     return htmlString;
 }
-
 TRP.Venue.prototype.toHTML = function () {
     var returnString = "";
     var that = this;
@@ -519,12 +518,14 @@ TRP.Itinerary.fn.removeEvent = function (event) {
     this.removeEvents(arrayTransform);
 }
 TRP.Itinerary.fn.moveEventPos = function (venueID,positionDestination) {
+    console.log(this.orderArray);
     if(!TRP.modified) { TRP.modified = true; };
+    var id = venueID;
     var currentPos = this.eventHash[id].itinPos;
-    var destIndex = positionDestination - 1; //we'll see if we actually need to subtract this.
+    var destIndex = positionDestination; //we'll see if we actually need to subtract this.
     var movingValue = this.orderArray.splice(currentPos,1);
     var orderEnd = this.orderArray.splice(destIndex,this.orderArray.length-destIndex);
-    this.orderArray.concat(movingValue,orderEnd);
+    this.orderArray = this.orderArray.concat(movingValue,orderEnd);
     this.refreshPositionRef();
 }
 /**
@@ -611,16 +612,20 @@ TRP.SearchObject.fn.pageBackward = function () {
 }
 TRP.Itinerary.fn.toHTML = function() {
     function venueToHTML(venue) {
-        var htmlString = "<div class='venue'>";
+        console.log(venue);
+        var htmlString = "<div class='venue draggable";
+        htmlString += " index-" + venue.itinPos + " id-" + venue.id + "' draggable='true'>";
         htmlString += "<h4>" + venue.name + "</h4>";
         htmlString += "</div>";
 
         return htmlString;
     } 
-    function legToHTML(leg) {
-        var htmlString = "<div class='duration'>" + leg.duration.text + "<br>" + leg.transitMode + "</div>";
+    function legToHTML(leg,index) {
+        var htmlString = "<div class='leg index-" + index + "' >";
+        htmlString += "<div class='duration'>" + leg.duration.text + "<br>" + leg.transitMode + "</div>";
         htmlString += "<div class='connector'></div>";
         htmlString += "<div class='distance'>" + leg.distance.text + "</div>";
+        htmlString += "</div>";
         return htmlString;
     }
     var htmlString = "<div class='itinerary'>";
@@ -628,14 +633,14 @@ TRP.Itinerary.fn.toHTML = function() {
     for(var i = 0; i < this.orderArray.length; i++) {
         if (i === 0) {
             htmlString += "<div class='venue'><h4>Your Current Location</h4></div>";
-            htmlString += legToHTML(this.mapsData.directions[0]);
+            htmlString += legToHTML(this.mapsData.directions[0],0);
         }
 
         var id = this.orderArray[i]
         var venueObj = this.eventHash[id];
         htmlString += venueToHTML(venueObj);
         if (i !== this.orderArray.length - 1) {
-            htmlString += legToHTML(this.mapsData.directions[i+1]);
+            htmlString += legToHTML(this.mapsData.directions[i+1],i+1);
         }
 
     }
@@ -751,9 +756,11 @@ TRP.getLoadHTML = function () {
 
     return htmlString;
 }
-
 //begin application
 $( function () {
+    function logEvents(e) {
+        console.log(e);
+    }
     TRP.fileSystem.getSavedData(function (data) {
         TRP.currentItinerary = new TRP.Itinerary();
         TRP.data = data;
@@ -795,6 +802,37 @@ $( function () {
         } 
         // console.log(linkClick);
         e.preventDefault();
+    })
+    $(document).on('dragover',".leg", function() {
+        TRP.dragRelease = $(this)[0].classList[1];
+    })
+    $(document).on('dragstart',".itinerary .venue.draggable", function(e) {
+        $(this).animate({'height':"0px",'padding':'0rem'},250);
+        TRP.dragStart = $(this)[0].classList[3];
+        $(".leg .duration").each(function() {
+            $(this).animate({'opacity':0},250);
+        })
+        $(".leg .distance").each(function() {
+            $(this).animate({'opacity':0});
+        })
+    })
+    $(document).on('dragend',".itinerary .venue.draggable", function(e) {
+        var destination = TRP.dragRelease;
+        var source = TRP.dragStart.substring(3);
+        var startPos = TRP.currentItinerary.eventHash[source].itinPos;
+        if (destination === "last") {
+            TRP.currentItinerary.moveEventPos(source,TRP.currentItinerary.length -1 );
+        } else {
+            destination = destination.substring(6);
+            if ((destination === startPos) || (destination + 1 === startPos)) {
+                //don't do anything.
+            } else if (destination < startPos ) {
+                TRP.currentItinerary.moveEventPos(source,destination);
+            } else {
+                TRP.currentItinerary.moveEventPos(source,destination-1);
+            }
+        }
+        TRP.updateItineraryView();
     })
 
     TRP.searchHandler = new TRP.SearchObject();
@@ -955,14 +993,11 @@ $( function () {
         e.preventDefault();
     })
 });
-
-
 $(".exit").click( function (){
     clearMarkers();
     drawItinerary();
     listItinerary();
 });
-
 function listItinerary(){
     var destinationVenue=TRP.itinerary[TRP.itinerary.length-1];
     var waypoints=[];
@@ -973,7 +1008,6 @@ function listItinerary(){
         $(".itinerary").append("<div class='connector'></div><div class='venue "+id+"'><h4>"+name+"</h4></div>");
     }
 }
-
 //Google Maps functions
 function render_map() {
     var mapOptions = {
@@ -1034,10 +1068,10 @@ function render_map() {
 } google.maps.event.addDomListener(window, 'load', render_map);
 
 //function add_marker(lat, lon, name, markerType, markerUrl){
-    function add_marker(markerData){
+function add_marker(markerData){
 
-      var id= markerData.id;
-      var marker = new MarkerWithLabel({
+    var id= markerData.id;
+    var marker = new MarkerWithLabel({
         position: new google.maps.LatLng(markerData.lat,markerData.lon),
         draggable: false,
         raiseOnDrag: false,
@@ -1047,13 +1081,13 @@ function render_map() {
         labelClass: "labels "+id, // the CSS class for the label
         labelStyle: {opacity: 0.75},
         url: "#id-"+id
-     });
-      if (TRP.currentItinerary.eventHash[id]){
+    });
+    if (TRP.currentItinerary.eventHash[id]){
         setmarkerType(marker, "red-pushpin", null);
-      }
-      else{
+    }
+    else{
         setMarkerType(marker,markerData.iconType, markerData.iconUrl);
-      }  
+    }  
     var maxIndex = google.maps.Marker.MAX_ZINDEX;
        marker.infoWindow = new google.maps.InfoWindow({
        content:markerData.toHTML()
@@ -1069,7 +1103,7 @@ function render_map() {
     window.location.href = marker.url;
     //animate not working
     //$("article").animate({ scrollTop: $('#id-4c13897db7b9c92822a6a937').offset().top }, 1000);
-  });
+    });
     google.maps.event.addListener(marker, 'mouseover', function(){
         maxIndex++;
         //don't know if we want this

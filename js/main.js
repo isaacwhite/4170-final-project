@@ -20,14 +20,17 @@ TRP.directionsDisplay = new google.maps.DirectionsRenderer();
 TRP.directionsService = new google.maps.DirectionsService();
 TRP.deleteConfirm = "<div class='delete-confirm'><h4>Are you sure you want to delete this itinerary?<br>This operation cannot be undone.</h4><div class='confirm-buttons'><input type='submit' value='Yes' class='submit'><input type='button' value='No' class='cancel'></div></div>";
 TRP.changeLocationForm = "<div class='location-form'><form><input type='text' name='name-field' placeholder='The name of your location' id='loc-name'><input type='text' name='address-field' placeholder='Your location&#39;s address' id='addr-save'><div class='submit-buttons'><input type='submit' value='Save' class='submit'><input type='button' value='Cancel' class='cancel'></div></form></div>";
+//an object to manage actions related to viewing search results
 TRP.SearchObject = function () {
     this.resultCount = 0;
     this.searchHistory = [];
 };
+//an object to represent a page of search results
 TRP.PageObject = function () {
     this.pages = [];
     this.pageHTML = [];
 }
+//an object to model venues as availble through the foursquare api.
 TRP.Venue = function (prop) {
     this.name     = prop.name;
     this.rating   = prop.rating;
@@ -40,6 +43,7 @@ TRP.Venue = function (prop) {
     this.category = prop.category;
     this.iconUrl  = prop.iconUrl;
 }
+//an object to model the itinerary
 TRP.Itinerary = function (prop) {
     if (prop) {
         //realistically we'll just initialize from saved data, not from anything else.
@@ -58,6 +62,7 @@ TRP.Itinerary = function (prop) {
 }
 TRP.SearchObject.fn = TRP.SearchObject.prototype;
 TRP.Itinerary.fn = TRP.Itinerary.prototype;
+//a function to return a datestring useful for making foursquare api calls
 TRP.getDateString = function () {
     var dateNow = new Date();
     var dateString = "" + 
@@ -66,12 +71,14 @@ TRP.getDateString = function () {
         dateNow.getDate();
     return dateString;
 }
+//an object to model comments as provided by foursquare
 TRP.Comment = function (prop) {
     this.text     = prop.text;
     this.uFirst   = prop.firstName;
     this.uLast    = prop.lastName;
     this.photoUrl = prop.photoUrl;
 }
+//an object to model map markers
 TRP.Marker = function (prop) {
     this.lat      = prop.lat;
     this.lon      = prop.lon;
@@ -80,6 +87,7 @@ TRP.Marker = function (prop) {
     this.iconType = prop.iconType;
     this.iconUrl  = prop.iconUrl;
 }
+//main function for getting search results.
 TRP.getSuggestions = function (param) {
     var lat = param.lat;
     var lon = param.lon;
@@ -208,6 +216,7 @@ TRP.getSuggestions = function (param) {
     }
     getResults();
 }
+//a function to toggle showing and hiding the search box area
 TRP.toggleSearchBox = function () {
     if(!TRP.searchOpen){
         if(!TRP.animating) {
@@ -238,16 +247,19 @@ TRP.toggleSearchBox = function () {
         }
     }
 }
+//a function, unfortunately not filled out, to indicate the system loading a request
 TRP.indicateLoad = function (url) {
     //this is a function that can be used for more complex ui info
     //for now just console log "loading"
     console.log("Loading... (" + url + ")");
 }
+//a function to regenerate itinerary html and replace it in the view
 TRP.updateItineraryView = function() {
     var htmlString = TRP.currentItinerary.toHTML();
     $("article .itinerary").remove();
     $("article .end").before(htmlString);
 }
+//a method for marker objects to output as HTML
 TRP.Marker.prototype.toHTML = function () {
     var htmlString="";
     var that= this;
@@ -281,6 +293,7 @@ TRP.Marker.prototype.toHTML = function () {
         return htmlString;
     }
 }
+//a method for venue objects to output as HTML. Used in search results.
 TRP.Venue.prototype.toHTML = function () {
     var returnString = "";
     var that = this;
@@ -345,6 +358,7 @@ TRP.Venue.prototype.toHTML = function () {
     
     return venueHTML();
 }
+//a function used to return saved data from the designated file
 TRP.fileSystem.getSavedData = function (callback) {
     function reportError(e) {
             var emptyObj = {};
@@ -441,6 +455,7 @@ TRP.fileSystem.getSavedData = function (callback) {
         readData();
     }
 }
+//a function used to write data to the designated file.
 TRP.fileSystem.saveData = function (callback) {
     function writeData(contentString) {
         function deleteFile(callback) {
@@ -471,6 +486,7 @@ TRP.fileSystem.saveData = function (callback) {
         callback(false);
     }
 }
+//a function to process data after it is returned from the getSuggestions object
 TRP.SearchObject.fn.ingestData = function (data) {
     var orderedIDs = data.venueSort;
     this.resultCount = data.resultCount;
@@ -529,6 +545,7 @@ TRP.SearchObject.fn.ingestData = function (data) {
     placeSearchResults(displayed);
     TRP.loading = false;
 }
+//a function to calculate the available height for the search box
 TRP.SearchObject.fn.calcHeight = function() {
     var searchHeight = $(document).height();
     searchHeight -= $(".header-container").outerHeight();
@@ -536,9 +553,7 @@ TRP.SearchObject.fn.calcHeight = function() {
 
     return searchHeight;
 }
-/**
- * @param events an array of venue objects to be added to the itinerary
- */
+//a function to add an array of venue objects to the itinerary
 TRP.Itinerary.fn.addEvents = function (events) {
     if(!TRP.modified) { TRP.modified = true; };
     var position = this.orderArray.length;
@@ -550,20 +565,17 @@ TRP.Itinerary.fn.addEvents = function (events) {
         position++;
     }
 }
-/**
- * @param event a single venue object
- */
+//adds a single venue object to the itinerary
 TRP.Itinerary.fn.addEvent = function (event) {
     var arrayTransform = [event];
     this.addEvents(arrayTransform);
 }
-/**
- * @param event a single venue id
- */
+//removes a single venue from the itinerary based on event id
 TRP.Itinerary.fn.removeEvent = function (event) {
     var arrayTransform = [event];
     this.removeEvents(arrayTransform);
 }
+//moves an event to a new position in the itinerary based on id and target position
 TRP.Itinerary.fn.moveEventPos = function (venueID,positionDestination) {
     console.log(this.orderArray);
     if(!TRP.modified) { TRP.modified = true; };
@@ -575,9 +587,7 @@ TRP.Itinerary.fn.moveEventPos = function (venueID,positionDestination) {
     this.orderArray = this.orderArray.concat(movingValue,orderEnd);
     this.refreshPositionRef();
 }
-/**
- * @param ids an array of venue hashes to be removed
- */
+//removes events from the itinerary based on array of ids
 TRP.Itinerary.fn.removeEvents = function (ids) {
     if(!TRP.modified) { TRP.modified = true; };
     for (var i = 0; i < ids.length; i++) {
@@ -589,6 +599,7 @@ TRP.Itinerary.fn.removeEvents = function (ids) {
     }
     this.refreshPositionRef()
 }
+//updates hashmap with ordering values in array for itinerary
 TRP.Itinerary.fn.refreshPositionRef = function() {
     var orderArray = this.orderArray;
     for (var i = 0; i < orderArray.length; i++) {
@@ -596,6 +607,7 @@ TRP.Itinerary.fn.refreshPositionRef = function() {
         this.eventHash[id].itinPos = i;
     }
 }
+//sets directions on an itinerary object based on return results from google maps
 TRP.Itinerary.fn.setDirections = function(prop) {
     function processResults(results) {
         function thisLeg(distance,duration,transitMode,steps) {
@@ -627,6 +639,7 @@ TRP.Itinerary.fn.setDirections = function(prop) {
     var mapData = processResults(prop);
     this.mapsData = mapData; //keep it simple, processed already.
 }
+//the next page function for the search object
 TRP.SearchObject.fn.pageForward = function () {
     
     $(".more-results").click(function () {
@@ -651,6 +664,7 @@ TRP.SearchObject.fn.pageForward = function () {
 
     }
 }
+//the previous page function for the search object
 TRP.SearchObject.fn.pageBackward = function () {
     if(this.currentPage !== 0){
         var viewPage= this.currentPage;
@@ -669,6 +683,7 @@ TRP.SearchObject.fn.pageBackward = function () {
         placeSearchResults(displayed);
     }
 }
+//the toHTML method for the itinerary. Used in rendering the itinerary for viewing by user
 TRP.Itinerary.fn.toHTML = function() {
     function venueToHTML(venue) {
         console.log(venue);
@@ -712,6 +727,7 @@ TRP.Itinerary.fn.toHTML = function() {
 
     return htmlString;
 }
+//a function to load an itinerary from the list of saved itineraries into the currentItinerary object
 TRP.loadItinerary = function(name) {
     if (!TRP.modified) {
         var itineraryData = TRP.data.itineraries[name];
@@ -723,6 +739,7 @@ TRP.loadItinerary = function(name) {
         // TRP.updateItineraryView();
     }
 }
+//updates the data for saving (in TRP.data) as preparation to save
 TRP.updateData = function() {
     var name = TRP.currentItinerary.name;
     if(name) {
@@ -732,6 +749,7 @@ TRP.updateData = function() {
         return false;
     }
 }
+//a function to control lightbox behaviors for Trippy
 TRP.lightboxControl = function (adjustment, callback) {
     function fadeIn(object,callback) {
         $(object).css({'opacity':0,'display':'inherit'}).animate({'opacity':1},500,function() {
@@ -816,6 +834,7 @@ TRP.lightboxControl = function (adjustment, callback) {
 
     }
 }
+//a function to return the load page html based on available itineraries.
 TRP.getLoadHTML = function () {
     var itineraries = Object.keys(TRP.data.itineraries);
     var htmlString = "<div class='load-box'>";
@@ -848,6 +867,7 @@ $( function () {
         }
     });
 
+    //event handler for initial welcome links
     $(document).on('click','.welcome-contain a',function(e) {
         var linkClick = $(this).text();
 
@@ -872,9 +892,11 @@ $( function () {
         // console.log(linkClick);
         e.preventDefault();
     })
+    //event handler for part of changing order of itinerary objects
     $(document).on('dragover',".leg", function() {
         TRP.dragRelease = $(this)[0].classList[1];
     })
+    //event handler for part of changing order of itinerary objects
     $(document).on('dragstart',".itinerary .venue.draggable", function(e) {
         $(this).animate({'height':"0px",'padding':'0rem'},250);
         TRP.dragStart = $(this)[0].classList[3];
@@ -885,6 +907,7 @@ $( function () {
             $(this).animate({'opacity':0});
         })
     })
+    //event handler for conclusion of drag motion during order change in itinerary
     $(document).on('dragend',".itinerary .venue.draggable", function(e) {
         var destination = TRP.dragRelease;
         var source = TRP.dragStart.substring(3);
@@ -904,11 +927,14 @@ $( function () {
         drawItinerary();
     })
 
+    //initialize the search handler
     TRP.searchHandler = new TRP.SearchObject();
 
+    //a handler for the add item button to show the search box
     $(document).on('click',".add-item",function () {
         TRP.toggleSearchBox();
     });
+    //a function to exit out of the load box by pressing the cancel button
     $(document).on('click',".load-box .cancel",'click', function (e) {
         e.preventDefault();
         if($(".welcome").hasClass("visible")) {
@@ -921,12 +947,12 @@ $( function () {
             })
         }
     })
+    //a function to leave the search resutls pane by clicking return to itinerary
     $(".exit").click(function () {
         TRP.toggleSearchBox();
     });
-
     var searchObj = {};
-
+    //an event handler for calling searches
     $("#submit-button").click(function(e) {
         if (TRP.loading === false) {
             TRP.loading = true;
@@ -949,7 +975,7 @@ $( function () {
         } 
         e.preventDefault();
     });
-    
+    //an event handler for adding a venue to the itinerary from the search results page
     $(document).on('click', '.venue .add-venue', function (e) { // Make your changes here
         var curItin = TRP.currentItinerary;
         var venueObj = $(this).closest(".venue");
@@ -971,7 +997,6 @@ $( function () {
         $(".labels."+mapID).addClass("active");
         e.stopPropagation();
     });
-
     $(document).on('click', '.venue .info-add-venue', function (e) { // Make your changes here
         var curItin = TRP.currentItinerary;
         var venueObj = $(this).closest(".venue");
@@ -994,8 +1019,8 @@ $( function () {
         e.stopPropagation();
     });
 
+    //a function to remove the newly added item from the itnerary
     $(document).on('click', '.venue .added-label h4', function(e) { // Make your changes here
-
         var curItin = TRP.currentItinerary;
         var venueObj = $(this).closest(".venue");
         var mapID = venueObj[0].classList[1];
@@ -1008,6 +1033,7 @@ $( function () {
         $(".labels").removeClass("active");
         e.stopPropagation();
     });
+    //an event handler to show the user where a venue is on the map by changing colors
     $(document).on('click', '.search-form .venue', function() { // Make your changes here
         var venueObj = $(this).closest(".venue");
         var mapID = venueObj[0].classList[1];
@@ -1022,6 +1048,7 @@ $( function () {
         $(".labels").removeClass("active");
         $(".labels."+mapID).addClass("active");
     });
+    //an event handler for processing clicks inside the load box other than the cancel button
     $(document).on('click','.load-box a', function(e) {
         var itineraryName = ($(this).text());
         if(itineraryName === "Delete") {
@@ -1059,6 +1086,7 @@ $( function () {
         
         e.preventDefault();
     });
+    //an event handler for confirmation before deletion of itineraries, used in load box
     $(document).on('click','.confirm-buttons input', function (e) {
         if ($(this).val() === "Yes") {
             $(this).closest("li").css({'overflow':'hidden'}).animate({'max-height':'0px'},function() {
@@ -1074,6 +1102,7 @@ $( function () {
             });
         }
     });
+    //an event handler for the in progress functionality of changing the start location
     $(document).on('click','.location-form .submit-buttons input', function(e) {
         if($(this).val() === "Save") {
             console.log("change the search value");
@@ -1087,6 +1116,7 @@ $( function () {
         }
         e.preventDefault();
     })
+    //an event handler for processing the name of the new itinerary
     $(".save-form form .submit").click( function (e) { // Make your changes here
         function saveData(saveName,callback) {
             TRP.currentItinerary.name = saveName;
@@ -1118,12 +1148,14 @@ $( function () {
         }
         // e.stopPropagation();
     });
+    //an event handler to process cancelling out of the save form
     $(".save-form .cancel").click( function(e) {
         e.preventDefault();
         TRP.lightboxControl("save",function() {
             TRP.lightboxControl("lightbox");
         });
     });
+    //an event handler to show the save dialog box or to just save the file.
     $(".save-button").click( function (e) {
         var writeFn  = TRP.fileSystem.saveData;
         var updateFn = TRP.updateData;
@@ -1144,12 +1176,14 @@ $( function () {
         // e.stopPropogation();
         e.preventDefault();
     });
+    //an event handler to show the load screen
     $(".load-button").click( function (e) {
         TRP.lightboxControl("lightbox",function () {
             TRP.lightboxControl("load");
         })
         e.preventDefault();
     });
+    //an event handler for in progress functionality to change locations
     $(document).on('click','.location-switch', function (e) {
         $(this).closest(".venue").css({'overflow':'hidden','max-height':'1000px'}).animate({'max-height':'0px'},500,function() {
             var oldHTML = "";
@@ -1163,6 +1197,7 @@ $( function () {
         });
         e.preventDefault();
     });
+    //an event handler to remove an item from the itinerary
     $(document).on('click','h2.trash',function (e) {
         var id = $(this).closest(".venue")[0].classList[3];
         id = id.substring(3);
@@ -1170,11 +1205,13 @@ $( function () {
         drawItinerary();
     })
 });
+//another listener function to be called when exiting search results
 $(".exit").click( function (){
     clearMarkers();
     drawItinerary();
     listItinerary();
 });
+/**GOOGLE MAPS STUFF**/
 function listItinerary(){
     var destinationVenue=TRP.itinerary[TRP.itinerary.length-1];
     var waypoints=[];
@@ -1186,6 +1223,7 @@ function listItinerary(){
     }
 }
 //Google Maps functions
+//sets map intially when it loads
 function render_map() {
     var mapOptions = {
         zoom: 11,
@@ -1290,6 +1328,7 @@ function add_marker(markerData){
     TRP.markersMap[id]=marker;
 }
 
+//places search results on the map
 function placeSearchResults(results){
 
     var keysArray = results;
@@ -1312,6 +1351,7 @@ function placeSearchResults(results){
         add_marker(newMarker);
     }
 }
+//removes markers from map
 function clearMarkers(){
     for (var markers in TRP.markersMap){
         TRP.markersMap[markers].setMap(null);
@@ -1321,6 +1361,7 @@ function clearMarkers(){
     }       
 }
 
+//draw updated itinerary on map and in sidebar
 function drawItinerary(){
  
 // directions code modified from https://developers.google.com/maps/documentation/javascript/directions
@@ -1375,7 +1416,7 @@ function drawItinerary(){
     });
     }
 }
-
+//change marker type depending on use scenario
 function setMarkerType(marker, markerType, markerUrl){
 
     switch (markerType){

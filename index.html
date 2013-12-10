@@ -36,6 +36,26 @@
         </div>
 
         <div class="main-container">
+            <div class="lightbox">
+                <div class="welcome">
+                    <div class="welcome-contain">
+                        <h1>Welcome to Trippy</h1>
+                        <h4>The easiest way to plan an itinerary</h4>
+                        <p>Do you want to <a href="#">create a new itinerary</a> or <a href="#">load a saved itinerary</a>?</p>
+                        <p class="footer"><a href="#">How to use Trippy</a></p>
+                    </div>
+                </div>
+                <div class="save-form">
+                    <form>
+                            <div class='save-box'>
+                                <input type='text' name='name-field' placeholder='Enter a name for your itinerary.' id='name-save'>
+                            </div>
+                            <input type='submit' value='Save' id='submit'>
+                    </form>
+                </div>
+            </div>
+
+            
             <div class="main wrapper clearfix">
                 <div class="map-region">
                     <div id="map-canvas"></div>
@@ -102,19 +122,6 @@
                 </article>
             </div> <!-- #main -->
         </div> <!-- #main-container -->
-        <footer>
-            <div class="background-fill"></div>
-            <div class="save-form">
-                <form>
-                        <div class='save-box'>
-                            <input type='text' name='name-field' placeholder='Enter a name for your itinerary.' id='name-save'>
-                        </div>
-                        <input type='submit' value='Save' id='submit'>
-                </form>
-            </div>
-        </footer>
-
-
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.1.min.js"><\/script>')</script>
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true"></script>

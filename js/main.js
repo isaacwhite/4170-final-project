@@ -621,21 +621,32 @@ TRP.updateData = function() {
 }
 
 TRP.lightboxControl = function (adjustment, callback) {
+    function fadeIn(object,callback) {
+        $(object).css({'opacity':0,'display':'inherit'}).animate({'opacity':1},500,function() {
+            $(object).addClass("visible");
+            if(callback) { callback(); };
+        });
+    }
+    function fadeOut(object,callback,timeOverride) {
+        var duration = 500;
+        if(timeOverride) {
+            duration = timeOverride;
+        }
+        $(object).css({'opacity':1,'display':'inherit'}).animate({'opacity':0},duration,function() {
+            $(this).css({'display':'none'}).removeClass("visible");
+            if(callback) { callback(); };      
+        });
+    }
     switch (adjustment) {
         case "save":
             if($(".save-form").hasClass("visible")) {
-                $("footer").animate({'opacity':0},500,function() {
-                    $(this).css({'display':'none'}).find(".save-form")
-                        .css({'display':'none'})
-                        .removeClass("visible");
+                fadeOut($(".save-form"),function() {
                     if(callback) {
                         callback();
                     }
                 });
             } else {
-                $("footer .save-form").css({'display':'inherit'});
-                $("footer").css({'opacity':0,'display':'inherit'}).animate({'opacity':1},500,function() {
-                    $("footer .save-form").addClass("visible");
+                fadeIn($(".save-form"),function() {
                     if(callback) {
                         callback();
                     }
@@ -644,23 +655,57 @@ TRP.lightboxControl = function (adjustment, callback) {
             break;
         case "load":
             if($(".load-box").hasClass("visible")) {
-                $("footer").animate({'opacity':0},500,function() {
-                    $(this).css({'display':'none'}).find(".load-box").remove();
+                fadeOut($(".load-box"),function () {
+                    $("load-box").remove();
                     if(callback) {
                         callback();
                     }
                 });
             } else {
                 var loadHTML = TRP.getLoadHTML();
-                $("footer").append(loadHTML).css({'display':'inherit'}).find(".load-box").css({'display':'inherit'});
-                $("footer").css({'opacity':0,'display':'inherit'}).animate({'opacity':1},500,function() {
-                    $("footer .load-box").addClass("visible");
+                $(".lightbox").append(loadHTML);
+                fadeIn(".lightbox",function() {
                     if(callback) {
                         callback();
                     }
                 });
             }
             break;
+        case "intro":
+            //here we'll show the intro text and the help info before depositing users at the new itinerary start point.
+            break;
+        case "welcome":
+            //show the pretty start page.
+            if ($(".welcome-contain").hasClass("visible")) {
+                fadeOut(".welcome-contain",function() {
+                    console.log("welcome contain hidden");
+                    if(callback) {
+                        callback();
+                    }
+                },250);
+            } else {
+                fadeIn(".welcome-contain",function() {
+                    console.log("welcome contain loaded.");
+                    if(callback) {
+                        callback();
+                    }
+                });
+            }
+            break;
+        case "lightbox":
+            if($(".lightbox").hasClass("visible")) {
+                fadeOut(".lightbox",function () {
+                    if(callback) { callback(); };
+                    // if(callback) {
+                    //     callback();
+                    // }
+                });
+            } else {
+                fadeIn(".lightbox",function() {
+                    if(callback) { callback(); };
+                })
+            }
+        break;
     }
 }
 
@@ -685,12 +730,26 @@ $( function () {
         TRP.data = data;
         if(!($.isEmptyObject(data.itineraries))) {
             
-            TRP.lightboxControl("load");
+            TRP.lightboxControl("welcome");
         }
         
         //we need a check here based on whether itineraries is empty or not.
     // }
     });
+
+    $(".welcome-contain a").click(function(e) {
+        var linkClick = $(this).text();
+
+        if(linkClick === "create a new itinerary") {
+            console.log("adding!");
+        } else if (linkClick === "load a saved itinerary") {
+            console.log("loading!");
+        } else {
+            console.log("HELP MEEEEEE!!!");
+        }
+        // console.log(linkClick);
+        e.preventDefault();
+    })
 
     TRP.searchHandler = new TRP.SearchObject();
     $(".add-item").click(function () {

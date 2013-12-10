@@ -246,16 +246,37 @@ TRP.updateItineraryView = function() {
 }
 
 TRP.Marker.prototype.toHTML = function () {
-    var htmlString;
+    var htmlString="";
+    var that= this;
+    var id=that.id;
+    function defaultHTML(){
+        return "<div class='infoWinTitle'>Your current location</div>";
+    }
 
     function infoHTML(){
-        return "Hello ";
+        htmlString+="<div class='venue id-"+id+"'>"
+        htmlString+="<div class='infoWinTitle'>"+name+"</div>";
+        htmlString+="<div class='infoWinBody'>"+rating+"</div>";
+        htmlString+="<div class='infoWinAddress'>"+address+"</div>";
+
     }
     function buttonHTML(){
-        return "World!"
+        htmlString+="<div class='info-add-venue'> Add + </div>";
+        htmlString+="</div>";
     }
-    htmlString= infoHTML() + buttonHTML();
-    return htmlString;
+    if (id==1111){
+        return defaultHTML();
+    }
+    else {
+        var venueObj=TRP.venueMap[id];
+        var name= venueObj.name;
+        var rating= venueObj.rating;
+        var address= venueObj.address;
+
+        infoHTML();
+        buttonHTML();
+        return htmlString;
+    }
 }
 
 TRP.Venue.prototype.toHTML = function () {
@@ -851,6 +872,29 @@ $( function () {
         $(".labels."+mapID).addClass("active");
         e.stopPropagation();
     });
+
+    $(document).on('click', '.venue .info-add-venue', function (e) { // Make your changes here
+        var curItin = TRP.currentItinerary;
+        var venueObj = $(this).closest(".venue");
+        var mapID = venueObj[0].classList[1];
+        var markerID=mapID.substring(3);
+        var activeMarker= TRP.markersMap[markerID];
+        var lat=activeMarker.position.nb;
+        var lon=activeMarker.position.ob;
+        setMarkerType(activeMarker, "red-pushpin",null);
+        TRP.map.panTo(new google.maps.LatLng(lat, lon));
+        (activeMarker.setAnimation(google.maps.Animation.BOUNCE));
+        setTimeout(function(){ activeMarker.setAnimation(null); }, 1400);
+
+        mapID = mapID.substring(3);
+        curItin.addEvent(TRP.venueMap[mapID]);
+        venueObj.addClass("added");
+        venueObj.prepend(TRP.addedObject);
+        $(".labels").removeClass("active");
+        $(".labels."+mapID).addClass("active");
+        e.stopPropagation();
+    });
+
     $(document).on('click', '.venue .added-label h4', function(e) { // Make your changes here
 
         var curItin = TRP.currentItinerary;
@@ -1081,7 +1125,7 @@ function add_marker(markerData){
 function placeSearchResults(results){
 
     var keysArray = results;
-    TRP.map.setZoom(15);
+    TRP.map.setZoom(12);
 
     clearMarkers();
     add_marker(TRP.markerInit);
@@ -1110,6 +1154,7 @@ function clearMarkers(){
 }
 
 function drawItinerary(){
+
 // directions code modified from https://developers.google.com/maps/documentation/javascript/directions
 
     var itinArray = [];
@@ -1136,6 +1181,7 @@ function drawItinerary(){
 
     }
     directionsDisplay = new google.maps.DirectionsRenderer();
+    directionDisplay.setMap(null);
     directionsDisplay.setMap(TRP.map);
     var directionsService = new google.maps.DirectionsService();
 

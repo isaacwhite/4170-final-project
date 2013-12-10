@@ -499,7 +499,8 @@ TRP.SearchObject.fn.ingestData = function (data) {
         
     }
     this.currentPage = 0;
-    $(".venue").remove();
+    $(".search-form .venue").remove();
+    $(".search-form .paging-container").remove();
     if (TRP.searchHandler.searchPages.length>1){
         var viewPage= this.currentPage+1;
         var pagingHTML="";
@@ -704,8 +705,8 @@ TRP.Itinerary.fn.toHTML = function() {
         }
 
     }
-
-
+    htmlString += "<div class='leg last'><div class='connector'></div></div>";
+    htmlString += "<div class='venue add-item'><h4>Add an item + </h4></div>"
     htmlString += "</div>";
 
     return htmlString;
@@ -904,7 +905,7 @@ $( function () {
 
     TRP.searchHandler = new TRP.SearchObject();
 
-    $(".add-item").click(function () {
+    $(document).on('click',".add-item",function () {
         TRP.toggleSearchBox();
     });
     $(document).on('click',".load-box .cancel",'click', function (e) {
@@ -1102,6 +1103,12 @@ $( function () {
             $(".save-form h2").css({'color':'red','text-decoration':'underline'});
         }
         // e.stopPropagation();
+    });
+    $(".save-form .cancel").click( function(e) {
+        e.preventDefault();
+        TRP.lightboxControl("save",function() {
+            TRP.lightboxControl("lightbox");
+        });
     });
     $(".save-button").click( function (e) {
         var writeFn  = TRP.fileSystem.saveData;

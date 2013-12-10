@@ -144,9 +144,11 @@ TRP.getSuggestions = function (param) {
         return returnObj;
     }
     function processCategory(category){
-        var name=category.name;
-        var iconUrl=category.icon;
-        var id=category.id;
+        if(category) {
+            var name = category.name;
+            var iconUrl = category.icon.prefix+"bg_32"+category.icon.suffix; 
+            var id = category.id;
+        }
         var returnObj = {
             name : name,
             iconUrl : iconUrl,
@@ -155,10 +157,12 @@ TRP.getSuggestions = function (param) {
         return returnObj;
     }
     function processData(data) {
+        // console.log(data);
         var processedData = {}; //hash map by id
         var statusCode = data.meta.code;
         var resultCount = data.response.totalResults;
         var rawResults = data.response.groups[0].items;
+        console.log(rawResults);
         var venuesByRating = [];
         var callbackObj;
         for (var i=0; i<rawResults.length; i++) {
@@ -171,8 +175,7 @@ TRP.getSuggestions = function (param) {
             var tips = feedback.tips;
             var thumb = feedback.thumb;
             var id = thisResult.venue.id;
-            var category = processCategory(thisResult.venue.categories[0]);
-            var iconUrl = category.iconUrl.prefix+"bg_32"+category.iconUrl.suffix;            
+            var category = processCategory(thisResult.venue.categories[0]);          
             var venueData = {
                 'name': name,
                 'rating': rating,
@@ -182,7 +185,7 @@ TRP.getSuggestions = function (param) {
                 'comments': tips,
                 'id' : id,
                 'category': category,
-                'iconUrl' : iconUrl
+                'iconUrl' : category.iconUrl
             }
             venuesByRating.push(id);
             processedData[id] = new TRP.Venue(venueData);
@@ -851,21 +854,7 @@ $( function () {
         $(".labels").removeClass("active");
         e.stopPropagation();
     });
-    $(document).on('click', '.venue', function() { // Make your changes here
-        var venueObj = $(this).closest(".venue");
-        var mapID = venueObj[0].classList[1];
-        mapID = mapID.substring(3);
-        var activeMarker= TRP.markersMap[mapID];
-        var lat=activeMarker.position.nb;
-        var lon=activeMarker.position.ob;
-        TRP.map.panTo(new google.maps.LatLng(lat, lon));
-        (activeMarker.setAnimation(google.maps.Animation.BOUNCE));
-        setTimeout(function(){ activeMarker.setAnimation(null); }, 1400);
-
-        $(".labels").removeClass("active");
-        $(".labels."+mapID).addClass("active");
-    });
-    $(document).on('click', '.venue', function() { // Make your changes here
+    $(document).on('click', '.search-form .venue', function() { // Make your changes here
         var venueObj = $(this).closest(".venue");
         var mapID = venueObj[0].classList[1];
         mapID = mapID.substring(3);

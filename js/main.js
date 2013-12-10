@@ -1169,12 +1169,12 @@ function add_marker(markerData){
             labelStyle: {opacity: 0.75},
             url: "#id-"+id
         });
-    //  if (TRP.currentItinerary.eventHash[id]){
-        //setmarkerType(marker, "red-pushpin", null);
-  //  }
-    //else{
+      if (TRP.currentItinerary.eventHash[id]){
+        setmarkerType(marker, "red-pushpin", null);
+    }
+    else{
         setMarkerType(marker,markerData.iconType, markerData.iconUrl);
-   //   }  
+      }  
        marker.infoWindow = new google.maps.InfoWindow({
        content:markerData.toHTML()
     });

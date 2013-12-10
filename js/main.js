@@ -676,6 +676,7 @@ TRP.Itinerary.fn.toHTML = function() {
         var htmlString = "<div class='venue draggable";
         htmlString += " index-" + venue.itinPos + " id-" + venue.id + "' draggable='true'>";
         htmlString += "<h2 class='label'>" + labelLetter + "</h2>";
+        htmlString += "<h2 class='trash'><i class='fa fa-trash-o'></i></h2>"
         htmlString += "<h4>" + venue.name + "</h4>";
         htmlString += "</div>";
 
@@ -1162,6 +1163,12 @@ $( function () {
         });
         e.preventDefault();
     });
+    $(document).on('click','h2.trash',function (e) {
+        var id = $(this).closest(".venue")[0].classList[3];
+        id = id.substring(3);
+        TRP.currentItinerary.removeEvent(id);
+        drawItinerary();
+    })
 });
 $(".exit").click( function (){
     clearMarkers();

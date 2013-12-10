@@ -602,7 +602,8 @@ footer {
   -webkit-user-drag: element;
 }
 
-.venue h2.label {
+.venue h2.label,
+.venue h2.trash {
     position: absolute;
     top: 0;
     left: 0;
@@ -612,6 +613,17 @@ footer {
     border-radius: 0 0 .25rem;
     margin: 0;
     font-size: .925rem;
+}
+
+.venue h2.trash {
+    left: auto;
+    right: 0;
+    transition: all .25s;
+}
+.venue h2.trash:hover {
+    cursor: pointer;
+    background-color: rgb(255,23,23);
+    font-size: 1.5rem;
 }
 
 .pure-paginator, .pure-paginator * {
@@ -669,4 +681,12 @@ footer {
 }
 .start a {
     color: #a0a0a0;
+}
+#loc-name {
+    width: 100%;
+    margin-bottom: .5rem;
+}
+#addr-save {
+    width: 100%;
+    margin-bottom: 1rem;
 }

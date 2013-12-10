@@ -13,6 +13,8 @@ TRP.markerInit;
 TRP.fileSystem = {};
 TRP.addedObject = "<div class='added-label'><h2>Added to itinerary</h2><h4>Remove from itinerary</h4></div>";
 TRP.currentItinerary;
+TRP.modified = false;
+TRP.confirmText = "<h3>That itinerary name already exists. Are you sure you want to overwrite?</h3>";
 TRP.SearchObject = function () {
     this.resultCount = 0;
     this.searchHistory = [];
@@ -472,6 +474,7 @@ TRP.SearchObject.fn.calcHeight = function() {
  * @param events an array of venue objects to be added to the itinerary
  */
 TRP.Itinerary.fn.addEvents = function (events) {
+    if(!TRP.modified) { TRP.modified = true; };
     var position = this.orderArray.length;
     for (var i = 0; i < events.length; i++) {
         var id = events[i].id;
@@ -496,6 +499,7 @@ TRP.Itinerary.fn.removeEvent = function (event) {
     this.removeEvents(arrayTransform);
 }
 TRP.Itinerary.fn.moveEventPos = function (venueID,positionDestination) {
+    if(!TRP.modified) { TRP.modified = true; };
     var currentPos = this.eventHash[id].itinPos;
     var destIndex = positionDestination - 1; //we'll see if we actually need to subtract this.
     var movingValue = this.orderArray.splice(currentPos,1);
@@ -507,6 +511,7 @@ TRP.Itinerary.fn.moveEventPos = function (venueID,positionDestination) {
  * @param ids an array of venue hashes to be removed
  */
 TRP.Itinerary.fn.removeEvents = function (ids) {
+    if(!TRP.modified) { TRP.modified = true; };
     for (var i = 0; i < ids.length; i++) {
         var eventID = ids[i];
         var refObject = this.eventHash[eventID];
@@ -629,7 +634,6 @@ TRP.updateData = function() {
         return false;
     }
 }
-
 TRP.lightboxControl = function (adjustment, callback) {
     function fadeIn(object,callback) {
         $(object).css({'opacity':0,'display':'inherit'}).animate({'opacity':1},500,function() {
@@ -714,7 +718,6 @@ TRP.lightboxControl = function (adjustment, callback) {
 
     }
 }
-
 TRP.getLoadHTML = function () {
     var itineraries = Object.keys(TRP.data.itineraries);
     var htmlString = "<div class='load-box'>";
@@ -873,22 +876,33 @@ $( function () {
         e.preventDefault();
     });
     $(".save-form form #submit").click( function (e) { // Make your changes here
-        e.preventDefault();
-        var saveName = $(".save-box #name-save").val();
-        if( (saveName !== "") && (!(TRP.data.itineraries[saveName])) ) {
+        function saveData(saveName,callback) {
             TRP.currentItinerary.name = saveName;
-            TRP.lightboxControl("save");//hide the lightbox
+            TRP.lightboxControl("save",function() {
+                TRP.lightboxControl("lightbox");
+            });//hide the lightbox
             var dataResult = TRP.updateData();
             if(dataResult) {
                 TRP.fileSystem.saveData(function() {
                     alert("The file was saved");
                 });
             }
+        }
+        e.preventDefault();
+        var saveName = $(".save-box #name-save").val();
+        if( (saveName !== "") && (!(TRP.data.itineraries[saveName])) ) {
+            saveData(saveName);
             
-        } else if (saveName !== "") {
-            console.log("That itinerary name already exists. Want to overwrite?");
+        } else if (TRP.data.itineraries[saveName]) {
+            if(!$(".submit-buttons").hasClass("confirm")) {
+                $(".submit-buttons").prepend(TRP.confirmText).addClass("confirm");
+                $(".submit-buttons #submit").val("Yes");
+                $(".submit-buttons #cancel").val("No");
+            } else {
+                saveData(saveName);
+            }
         } else {
-            console.log("Please enter a save name");
+            $(".save-form h2").css({'color':'red','text-decoration':'underline'});
         }
         // e.stopPropagation();
     });

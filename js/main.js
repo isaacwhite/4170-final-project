@@ -19,6 +19,7 @@ TRP.confirmText = "<h3>That itinerary name already exists. Are you sure you want
 TRP.directionsDisplay = new google.maps.DirectionsRenderer();
 TRP.directionsService = new google.maps.DirectionsService();
 
+
 TRP.SearchObject = function () {
     this.resultCount = 0;
     this.searchHistory = [];
@@ -1098,15 +1099,20 @@ function listItinerary(){
 }
 //Google Maps functions
 function render_map() {
+    userInput=true;
     var mapOptions = {
         zoom: 11,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         styles:styledMap
       };
       TRP.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-
       // Try HTML5 geolocation
-    if(navigator.geolocation) {
+    if (userInput){
+        geocode_addr("the New yorker","4 Times Square", "New York, NY");
+         TRP.map.setCenter(initial_loc);
+        
+    }
+    else if(navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
           TRP.currLoc.lat=position.coords.latitude;
           TRP.currLoc.lon= position.coords.longitude;
@@ -1232,6 +1238,8 @@ function clearMarkers(){
     }       
 }
 
+
+
 function drawItinerary(){
  
 // directions code modified from https://developers.google.com/maps/documentation/javascript/directions
@@ -1286,6 +1294,35 @@ function drawItinerary(){
     });
     }
 }
+
+
+function geocode_addr(event_title,street_addr, city_state){
+
+
+var markerData= $.getJSON("http://maps.googleapis.com/maps/api/geocode/json?address="+street_addr+","+city_state+"&sensor=true", function(data){
+    //var geocode_obj=data;
+   //  var lat=data. 
+    console.log(data);
+    TRP.currLoc.lat=data.results[0].geometry.location.lat;
+    TRP.currLoc.lon=data.results[0].geometry.location.lng;
+    var markerData = {
+        'lat': TRP.currLoc.lat,
+        'lon': TRP.currLoc.lon,
+        'name': event_title,
+        'id' : 1111,
+        'iconType': 'blue-dot',
+        'iconUrl': null
+     }
+    
+      TRP.markerInit= markerData;
+      TRP.markerInit= new TRP.Marker(markerData);
+      console.log(TRP.markerInit);
+      add_marker(TRP.markerInit);
+      
+  });
+    //return markerData;
+}
+
 
 function setMarkerType(marker, markerType, markerUrl){
 

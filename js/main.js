@@ -815,7 +815,7 @@ TRP.getLoadHTML = function () {
     htmlString += "<h2>Load a saved itinerary</h2>"
     htmlString += "<ul class='itineraries'>"
     for (var i = 0; i < itineraries.length; i++) {
-        htmlString += "<li><a href='#'>" + itineraries[i] + "</a></li>";
+        htmlString += "<li><a href='#'>" + itineraries[i] + "</a><a href='#' class='delete'>Delete</a></li>";
     }
     htmlString += "</ul>";
     htmlString += "<h4><a class='cancel' href='#'>Cancel</a></h4>";

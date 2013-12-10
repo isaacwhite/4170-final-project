@@ -11,6 +11,7 @@ TRP.map;
 TRP.markersMap = {};
 TRP.markerInit;
 TRP.fileSystem = {};
+TRP.markerAlpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 TRP.addedObject = "<div class='added-label'><h2>Added to itinerary</h2><h4>Remove from itinerary</h4></div>";
 TRP.currentItinerary;
 TRP.modified = false;
@@ -664,8 +665,10 @@ TRP.SearchObject.fn.pageBackward = function () {
 TRP.Itinerary.fn.toHTML = function() {
     function venueToHTML(venue) {
         console.log(venue);
+        var labelLetter = TRP.markerAlpha.substring(venue.itinPos+1,venue.itinPos+2);
         var htmlString = "<div class='venue draggable";
         htmlString += " index-" + venue.itinPos + " id-" + venue.id + "' draggable='true'>";
+        htmlString += "<h2 class='label'>" + labelLetter + "</h2>";
         htmlString += "<h4>" + venue.name + "</h4>";
         htmlString += "</div>";
 
@@ -683,7 +686,7 @@ TRP.Itinerary.fn.toHTML = function() {
 
     for(var i = 0; i < this.orderArray.length; i++) {
         if (i === 0) {
-            htmlString += "<div class='venue'><h4>Your Current Location</h4></div>";
+            htmlString += "<div class='venue'><h2 class='label'>A</h2><h4>Your Current Location</h4></div>";
             htmlString += legToHTML(this.mapsData.directions[0],0);
         }
 
@@ -1259,9 +1262,6 @@ function drawItinerary(){
       });
 
     }
-    console.log("HELLO WAYPOINTS");
-    console.log(waypoints);
-
     TRP.directionsDisplay.setMap(null);
     TRP.directionsDisplay.setMap(TRP.map);
 
@@ -1273,8 +1273,6 @@ function drawItinerary(){
         travelMode: google.maps.TravelMode.WALKING,
        unitSystem: google.maps.UnitSystem.IMPERIAL
     };
-    console.log("HELLO REQUEST");
-    console.log(request);
     TRP.directionsService.route(request, function(response, status) {
       if (status == google.maps.DirectionsStatus.OK) {
 

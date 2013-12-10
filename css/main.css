@@ -376,7 +376,6 @@ blockquote {
      width: 75px;     
      border: 1px solid gray;
 }
-<<<<<<< HEAD
 .itinerary .distance {
     float: left;
     width: 49%;
@@ -419,6 +418,11 @@ footer {
     display:none;
 }
 .save-form {
+    display:none;
+}
+
+.save-form.visible {
+    display:inherit;
     height: 15rem;
     width: 30%;
     margin: 0 auto;
@@ -428,6 +432,7 @@ footer {
     position:relative;
     z-index: 4;
 }
+
 .background-fill {
     background-color: black;
     position: absolute;
@@ -435,7 +440,8 @@ footer {
     left: 0;
     width: 100%;
     height: 100%;
-    opacity:.4
+    opacity:.4;
+    z-index: -1;
 }
 
 #name-save {

@@ -14,7 +14,7 @@ body {
     background-image: url(../img/nyc.jpg);
     background-size: cover;
     background-repeat: no-repeat;
-    z-index: 1000;
+    z-index: 12;
     background-color: black;
 }
 .welcome-contain {
@@ -37,7 +37,6 @@ body {
     color:white;
     width: 100%;
     padding: 1rem 1rem 1rem 2rem;
-    display:none;
 }
 
 .header-container h1 {
@@ -325,7 +324,7 @@ blockquote {
     position: absolute;
     top: 0rem;
     width: 1.5rem;
-    height: 1.5rem;
+    height: 1.5rem    ;
     display: block;
     background-color: rgb(174, 180, 250);
     content: '+';
@@ -447,13 +446,13 @@ footer {
 .save-form,
 .load-box {
     height: 15rem;
-    width: 30%;
+    width: 40%;
     margin: 0 auto;
     background-color: white;
     padding: 2rem;
     margin-top: 15rem;
     position:relative;
-    z-index: 4;
+    z-index: 13;
     display:none;
 }
 
@@ -525,5 +524,12 @@ footer {
     background-color: black;
     color: white;
     border: none;
+}
+.lightbox {
+    height: 100%;
+    position: fixed;
+    z-index: 10;
+    width: 100%;
+}
 }
 

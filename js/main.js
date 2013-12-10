@@ -641,15 +641,11 @@ TRP.lightboxControl = function (adjustment, callback) {
         case "save":
             if($(".save-form").hasClass("visible")) {
                 fadeOut($(".save-form"),function() {
-                    if(callback) {
-                        callback();
-                    }
+                    if(callback) { callback(); }
                 });
             } else {
                 fadeIn($(".save-form"),function() {
-                    if(callback) {
-                        callback();
-                    }
+                    if(callback) { callback(); }
                 });
             }
             break;
@@ -657,17 +653,13 @@ TRP.lightboxControl = function (adjustment, callback) {
             if($(".load-box").hasClass("visible")) {
                 fadeOut($(".load-box"),function () {
                     $("load-box").remove();
-                    if(callback) {
-                        callback();
-                    }
+                    if(callback) { callback(); }
                 });
             } else {
                 var loadHTML = TRP.getLoadHTML();
                 $(".lightbox").append(loadHTML);
-                fadeIn(".lightbox",function() {
-                    if(callback) {
-                        callback();
-                    }
+                fadeIn(".load-box",function() {
+                    if(callback) { callback(); }
                 });
             }
             break;
@@ -679,16 +671,12 @@ TRP.lightboxControl = function (adjustment, callback) {
             if ($(".welcome-contain").hasClass("visible")) {
                 fadeOut(".welcome-contain",function() {
                     console.log("welcome contain hidden");
-                    if(callback) {
-                        callback();
-                    }
+                    if(callback) { callback(); }
                 },250);
             } else {
                 fadeIn(".welcome-contain",function() {
                     console.log("welcome contain loaded.");
-                    if(callback) {
-                        callback();
-                    }
+                    if(callback) { callback(); }
                 });
             }
             break;
@@ -696,16 +684,24 @@ TRP.lightboxControl = function (adjustment, callback) {
             if($(".lightbox").hasClass("visible")) {
                 fadeOut(".lightbox",function () {
                     if(callback) { callback(); };
-                    // if(callback) {
-                    //     callback();
-                    // }
                 });
             } else {
                 fadeIn(".lightbox",function() {
                     if(callback) { callback(); };
+                });
+            }
+            break;
+        case "image":
+            if($(".welcome").hasClass("visible")) {
+                fadeOut(".welcome",function() {
+                    if(callback) { callback(); };
+                });
+            } else {
+                fadeIn(".welcome",function() {
+                    if(callback) { callback(); };
                 })
             }
-        break;
+
     }
 }
 
@@ -742,8 +738,15 @@ $( function () {
 
         if(linkClick === "create a new itinerary") {
             console.log("adding!");
+            TRP.lightboxControl("welcome",function() {
+                TRP.lightboxControl("image", function() {
+                    $(".lightbox").removeClass("visible").css({'display':'none'});
+                });
+            });
         } else if (linkClick === "load a saved itinerary") {
-            console.log("loading!");
+            TRP.lightboxControl("welcome",function() {
+                TRP.lightboxControl("load");
+            });
         } else {
             console.log("HELP MEEEEEE!!!");
         }
@@ -850,7 +853,11 @@ $( function () {
         } else {
             //proceed as normal, fade out the save-box
         }
-        TRP.lightboxControl("load");
+        TRP.lightboxControl("load",function() {
+            TRP.lightboxControl("image", function() {
+                $(".lightbox").removeClass("visible").css({'display':'none'});
+            });
+        });
         e.preventDefault();
     });
     $(".save-form form #submit").click( function (e) { // Make your changes here

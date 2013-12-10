@@ -168,6 +168,10 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', end
     background-color: rgb(24, 107, 253);
     border-radius: .5rem;
     box-sizing: border-box;
+    background-image: url(../img/search.png);
+    background-repeat: no-repeat;
+    background-size: 55%;
+    background-position: 7px 8px;
 }
 /*TAKE THIS OUT, JUST FOR DEMO*/
 .map-region:after {

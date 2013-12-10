@@ -497,7 +497,24 @@ TRP.SearchObject.fn.ingestData = function (data) {
         
     }
     this.currentPage = 0;
+    $(".venue").remove();
+    if (TRP.searchHandler.searchPages.length>1){
+        var viewPage= this.currentPage+1;
+        var pagingHTML="";
+        pagingHTML+="<div class='paging-container'>";
+        pagingHTML+="<div class='page-backward'> < </div>";
+        pagingHTML+="<div class='page-number'> Page "+viewPage+" of "+TRP.searchHandler.searchPages.length+" </div>";
+        pagingHTML+="<div class='page-forward'> > </div> </div>";
+        $(".reference").append(pagingHTML);
+         $(".page-forward").click(function () {
+             TRP.searchHandler.pageForward();
+         });
+         $(".page-backward").click(function () {
+             TRP.searchHandler.pageBackward();
+         });
+    }
     $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
+
     this.offset = 0;
     //place search results on map
     var displayed = this.searchPages[this.currentPage].pages;
@@ -603,7 +620,15 @@ TRP.Itinerary.fn.setDirections = function(prop) {
     this.mapsData = mapData; //keep it simple, processed already.
 }
 TRP.SearchObject.fn.pageForward = function () {
+    
+         $(".more-results").click(function () {
+             TRP.searchHandler.pageForward();
+         });
+
     if(this.currentPage < this.searchPages.length-1){
+        var viewPage= this.currentPage+2;
+        $(".page-number").empty();
+        $(".page-number").append("Page "+viewPage+" of "+this.searchPages.length+" ");
         this.currentPage++;
         var lastPage = this.currentPage - 1;
         var pageHTML = ""
@@ -615,10 +640,14 @@ TRP.SearchObject.fn.pageForward = function () {
         $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
         var displayed = this.searchPages[this.currentPage].pages;
         placeSearchResults(displayed);
+
     }
 }
 TRP.SearchObject.fn.pageBackward = function () {
     if(this.currentPage !== 0){
+        var viewPage= this.currentPage;
+        $(".page-number").empty();
+        $(".page-number").append("Page "+viewPage+" of "+this.searchPages.length+" ");
         this.currentPage--;
         var lastPage = this.currentPage + 1;
         var pageHTML = ""
@@ -869,6 +898,7 @@ $( function () {
     })
 
     TRP.searchHandler = new TRP.SearchObject();
+
     $(".add-item").click(function () {
         TRP.toggleSearchBox();
     });

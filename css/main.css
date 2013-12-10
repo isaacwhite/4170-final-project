@@ -363,9 +363,10 @@ blockquote {
     height:100%;
 }
 
-#infoWindow{
-    height:3rem;
-    overflow:none;
+.gm-style-iw{
+    height:150px;
+    width:200px;
+    overflow:auto;
 }
 
 .labels {
@@ -448,7 +449,6 @@ footer {
   display: table;
   clear: both;
 }
-
 .save-form,
 .load-box {
     width: 40%;

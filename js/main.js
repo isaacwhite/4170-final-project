@@ -199,7 +199,10 @@ TRP.toggleSearchBox = function () {
     if(!TRP.searchOpen){
         if(!TRP.animating) {
             TRP.animating = true;
-            $(".search-form").animate({'height':'100%'},400,function () {
+            var height = TRP.searchHandler.calcHeight();
+
+            $(".search-form").animate({'height':height},400,function () {
+                $(this).css({'padding-bottom':'4em'});
                 $(".exit").animate({'opacity':1},250, function () {
                     TRP.animating = false;
                     TRP.searchOpen = true;
@@ -210,7 +213,7 @@ TRP.toggleSearchBox = function () {
         if(!TRP.animating) {
             TRP.animating = true;
             $(".exit").animate({'opacity':0},200,function () {
-                $(".search-form").animate({'height':'0%'},400, function () {
+                $(".search-form").css({'padding-bottom':0}).animate({'height':'0px'},400, function () {
                     $(".search-form .venue").each(function() {
                         $(this).remove();
                     })
@@ -458,6 +461,13 @@ TRP.SearchObject.fn.ingestData = function (data) {
     placeSearchResults(displayed);
     TRP.loading = false;
 }
+TRP.SearchObject.fn.calcHeight = function() {
+    var searchHeight = $(document).height();
+    searchHeight -= $(".header-container").outerHeight();
+    searchHeight -= $(".exit").outerHeight();
+
+    return searchHeight;
+}
 /**
  * @param events an array of venue objects to be added to the itinerary
  */
@@ -652,7 +662,7 @@ TRP.lightboxControl = function (adjustment, callback) {
         case "load":
             if($(".load-box").hasClass("visible")) {
                 fadeOut($(".load-box"),function () {
-                    $("load-box").remove();
+                    $(".load-box").remove();
                     if(callback) { callback(); }
                 });
             } else {
@@ -739,9 +749,8 @@ $( function () {
         if(linkClick === "create a new itinerary") {
             console.log("adding!");
             TRP.lightboxControl("welcome",function() {
-                TRP.lightboxControl("image", function() {
-                    $(".lightbox").removeClass("visible").css({'display':'none'});
-                });
+                TRP.lightboxControl("image");
+                TRP.lightboxControl("lightbox");
             });
         } else if (linkClick === "load a saved itinerary") {
             TRP.lightboxControl("welcome",function() {
@@ -854,9 +863,12 @@ $( function () {
             //proceed as normal, fade out the save-box
         }
         TRP.lightboxControl("load",function() {
-            TRP.lightboxControl("image", function() {
-                $(".lightbox").removeClass("visible").css({'display':'none'});
-            });
+            if($(".welcome").hasClass("visible")) {
+                TRP.lightboxControl("image");
+                TRP.lightboxControl("lightbox");
+            } else {
+                TRP.lightboxControl("lightbox");
+            }
         });
         e.preventDefault();
     });
@@ -891,13 +903,21 @@ $( function () {
                 })
             }
         } else if (TRP.currentItinerary) {
-            lightbox("save");
+            lightbox("lightbox",function() {
+                lightbox("save");
+            })
         } else {
             console.log("save button clicked! No itinerary item set up!");
         }
         // e.stopPropogation();
         e.preventDefault();
     });
+    $(".load-button").click( function (e ) {
+        TRP.lightboxControl("lightbox",function () {
+            TRP.lightboxControl("load");
+        })
+        e.preventDefault();
+    })
 });
 
 

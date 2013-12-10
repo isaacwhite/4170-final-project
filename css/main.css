@@ -92,7 +92,7 @@ body {
     position:fixed;
     top:5rem;
     bottom:0;
-    left:0;
+    right:0;
     width:70%;
 }
 .main-container article {
@@ -101,7 +101,7 @@ body {
     bottom: 0;
     overflow-y: auto;
     width:30%;
-    right:0;
+    left:0;
     padding:0 1rem;
     background-color: rgb(236, 224, 202);
 }
@@ -131,11 +131,13 @@ body {
     background-color: white;
     text-align:center;
     padding:.5rem;
-    border-radius:.5rem;
+    /*border-radius:.5rem;*/
 }
 
 .venue.add-item:hover {
     cursor: pointer;
+    background-color: black;
+    color: white;
 }
 
 
@@ -220,7 +222,7 @@ ul {
 }
 
 .search-form {
-    height: 0%;
+    height: 0px;
     position: absolute;
     background-color: rgb(196, 185, 167);
     width: 100%;
@@ -231,13 +233,13 @@ ul {
 }
 
 .exit {
-    position: absolute;
-    bottom:1rem;
-    left:0;
-    width:100%;
-    background-color:red;
-    text-align:center;
-    opacity:0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    background-color: red;
+    text-align: center;
+    opacity: 0;
+    width: 30%;
 }
 
 .exit:hover {
@@ -530,6 +532,6 @@ footer {
     position: fixed;
     z-index: 10;
     width: 100%;
-}
+    background-image: url(../img/black_60.png);
 }
 

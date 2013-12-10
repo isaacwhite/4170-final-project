@@ -16,6 +16,9 @@ TRP.addedObject = "<div class='added-label'><h2>Added to itinerary</h2><h4>Remov
 TRP.currentItinerary;
 TRP.modified = false;
 TRP.confirmText = "<h3>That itinerary name already exists. Are you sure you want to overwrite?</h3>";
+TRP.directionsDisplay = new google.maps.DirectionsRenderer();
+TRP.directionsService = new google.maps.DirectionsService();
+
 TRP.SearchObject = function () {
     this.resultCount = 0;
     this.searchHistory = [];
@@ -1200,9 +1203,9 @@ function clearMarkers(){
 }
 
 function drawItinerary(){
-
+ 
 // directions code modified from https://developers.google.com/maps/documentation/javascript/directions
-
+  //  directionsDisplay.setMap(null);
     var itinArray = [];
     for(var i = 0; i < TRP.currentItinerary.orderArray.length; i++) {
         var thisID = TRP.currentItinerary.orderArray[i];
@@ -1214,11 +1217,14 @@ function drawItinerary(){
     }
     else{
     var destinationVenue = itinArray[itinArray.length-1];
+    //console.log("Destination Venue");
+    //console.log(destinationVenue);
     var destination = new google.maps.LatLng(destinationVenue.coord.lat, destinationVenue.coord.lon);
     var origin = new google.maps.LatLng(TRP.currLoc.lat, TRP.currLoc.lon);
     var waypoints=[];
     for (var i=0; i<itinArray.length-1; i++){
         var venue=itinArray[i];
+        console.log(venue.name);
         var waypoint= new google.maps.LatLng(venue.coord.lat, venue.coord.lon);
          waypoints.push({
           location:waypoint,
@@ -1226,25 +1232,25 @@ function drawItinerary(){
       });
 
     }
-    directionsDisplay = new google.maps.DirectionsRenderer();
-    //directionsDisplay.setMap(null);
-    directionsDisplay.setMap(TRP.map);
-    var directionsService = new google.maps.DirectionsService();
+    TRP.directionsDisplay.setMap(null);
+    TRP.directionsDisplay.setMap(TRP.map);
 
     var request = {
         origin: origin,
         destination: destination,
         waypoints: waypoints,
-        optimizeWaypoints: true,
+        optimizeWaypoints: false,
         travelMode: google.maps.TravelMode.WALKING,
        unitSystem: google.maps.UnitSystem.IMPERIAL
     };
-    directionsService.route(request, function(response, status) {
+    TRP.directionsService.route(request, function(response, status) {
       if (status == google.maps.DirectionsStatus.OK) {
 
         var responseSub = response.routes[0];
         TRP.currentItinerary.setDirections(responseSub);
-        directionsDisplay.setDirections(response);
+        TRP.directionsDisplay.setDirections(response);
+        console.log("HELLO RESPONSE");
+        console.log(response);
         TRP.updateItineraryView();
       }
     });

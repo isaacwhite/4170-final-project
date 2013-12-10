@@ -456,7 +456,8 @@ footer {
 .save-form form:after,
 .itinerary .leg:after,
 .load-box .itineraries:after,
-.load-box li:after {
+.load-box li:after,
+.confirm-buttons:after {
   content: "";
   display: table;
   clear: both;
@@ -495,7 +496,8 @@ footer {
     height: 100%;
     width: 100%;
 }
-.submit-buttons input {
+.submit-buttons input,
+.confirm-buttons input {
     display: block;
     float:left;
     -webkit-appearance: inherit;
@@ -516,15 +518,18 @@ footer {
     -ms-user-select: none;
     user-select: none;
 }
-.submit-buttons input:hover {
+.submit-buttons input:hover,
+.confirm-buttons input:hover {
     cursor: pointer;
     opacity: 1;
 }
-.submit-buttons #submit {
+.submit-buttons .submit,
+.confirm-buttons .submit {
     background-color: rgb(38, 85, 42);
     margin-right: 5%;
 }
-.submit-buttons #cancel {
+.submit-buttons .cancel,
+.confirm-buttons .cancel {
     background-color: rgb(134, 6, 6);
 }
 
@@ -551,24 +556,28 @@ footer {
 
 .load-box li {
     display: block;
-    padding: 0 .5rem;
-}
+ }
 .load-box a {
-    width: 60%;
+    width: 80%;
     padding: .25rem .5rem;
     color: black;
     float:left;
+    padding-left: 1rem;
 }
 
 .load-box a.delete {
     float:right;
-    width: 30%;
+    width: 20%;
     clear: right;
+    padding-left:.5rem;
 }
 .load-box a:hover {
     background-color: black;
     color: white;
     border: none;
+}
+.load-box a.delete:hover {
+    background-color: rgb(134, 6, 6);
 }
 .itineraries li:nth-child(even) {
     background-color: #d7d7d7;
@@ -629,4 +638,30 @@ footer {
 
 .load-box .itineraries {
     border: 1px solid #d7d7d7;
+}
+.delete-confirm {
+    text-align:center;
+    margin-top: 2rem;
+    overflow:hidden;
+}
+
+.confirm-buttons {
+    margin: 1rem;
+}
+
+.load-box h4 .cancel {
+    display: block;
+    text-decoration: none;
+    padding: .5rem;
+    border: 1px solid #d7d7d7;
+    border-radius: .125rem;
+    width: 30%;
+    text-align: center;
+    margin: 0 auto;
+    float: none;
+}
+.load-box h4 {
+    display: block;
+    text-align: center;
+    margin-bottom: 0;
 }

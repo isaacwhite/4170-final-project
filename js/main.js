@@ -18,6 +18,7 @@ TRP.modified = false;
 TRP.confirmText = "<h3>That itinerary name already exists. Are you sure you want to overwrite?</h3>";
 TRP.directionsDisplay = new google.maps.DirectionsRenderer();
 TRP.directionsService = new google.maps.DirectionsService();
+TRP.deleteConfirm = "<div class='delete-confirm'><h4>Are you sure you want to delete this itinerary?<br>This operation cannot be undone.</h4><div class='confirm-buttons'><input type='submit' value='Yes' class='submit'><input type='button' value='No' class='cancel'></div></div>";
 
 TRP.SearchObject = function () {
     this.resultCount = 0;
@@ -824,6 +825,7 @@ TRP.getLoadHTML = function () {
         htmlString += "<li><a href='#'>" + itineraries[i] + "</a><a class='delete' href='#'>Delete</a></li>";
     }
     htmlString += "</ul>";
+    htmlString += "<h4><a class='cancel' href='#'>Cancel</a></h4>";
     htmlString += "</div>";
 
     return htmlString;
@@ -913,6 +915,18 @@ $( function () {
         TRP.toggleSearchBox();
         e.stopPropagation();
     });
+    $(document).on('click',".load-box .cancel",'click', function (e) {
+        e.preventDefault();
+        if($(".welcome").hasClass("visible")) {
+            TRP.lightboxControl("load",function() {
+                TRP.lightboxControl("welcome");
+            })
+        } else {
+            TRP.lightboxControl("load",function() {
+                TRP.lightboxControl("lightbox");
+            })
+        }
+    })
     $(".exit").click(function () {
         TRP.toggleSearchBox();
     });
@@ -1016,22 +1030,57 @@ $( function () {
     });
     $(document).on('click','.load-box a', function(e) {
         var itineraryName = ($(this).text());
-        if(!($(this).hasClass("new-itinerary"))){
+        if(itineraryName === "Delete") {
+            var parent = $(this).closest("li");
+            var parentHeight = $(parent).height();
+            function callback() {
+                console.log("hello!");
+                $(parent).css({'overflow':'hidden','max-height':parentHeight + "px"});
+                $(parent).append(TRP.deleteConfirm);
+                $(parent).animate({'max-height':'1000px'});
+            }
+            if ( $(".delete-confirm").length !== 0 ) {
+                $(".delete-confirm").each(function() {
+                    $(this).css({'max-height':'1000px'}).animate({'max-height':'0px'},function() {
+                    $(this).remove();
+                    callback();
+                    });
+                });
+            } else {
+                callback();
+            }      
+        } else if(!($(this).hasClass("new-itinerary"))){
             TRP.loadItinerary(itineraryName);
+            TRP.lightboxControl("load",function() {
+                if($(".welcome").hasClass("visible")) {
+                    TRP.lightboxControl("image");
+                    TRP.lightboxControl("lightbox");
+                } else {
+                    TRP.lightboxControl("lightbox");
+                }
+            });
         } else {
             //proceed as normal, fade out the save-box
         }
-        TRP.lightboxControl("load",function() {
-            if($(".welcome").hasClass("visible")) {
-                TRP.lightboxControl("image");
-                TRP.lightboxControl("lightbox");
-            } else {
-                TRP.lightboxControl("lightbox");
-            }
-        });
+        
         e.preventDefault();
     });
-    $(".save-form form #submit").click( function (e) { // Make your changes here
+    $(document).on('click','.confirm-buttons input', function (e) {
+        if ($(this).val() === "Yes") {
+            $(this).closest("li").css({'overflow':'hidden'}).animate({'max-height':'0px'},function() {
+                var toDelete = $(this).find("a:first").text();
+                if(TRP.data.itineraries[toDelete]) {
+                    delete TRP.data.itineraries[toDelete];
+                    TRP.fileSystem.saveData();
+                }
+            });
+        } else {
+            $(this).closest(".delete-confirm").css({'max-height':'1000px'}).animate({'max-height':'0px'},function() {
+                $(this).remove();
+            });
+        }
+    })
+    $(".save-form form .submit").click( function (e) { // Make your changes here
         function saveData(saveName,callback) {
             TRP.currentItinerary.name = saveName;
             TRP.lightboxControl("save",function() {
@@ -1052,8 +1101,8 @@ $( function () {
         } else if (TRP.data.itineraries[saveName]) {
             if(!$(".submit-buttons").hasClass("confirm")) {
                 $(".submit-buttons").prepend(TRP.confirmText).addClass("confirm");
-                $(".submit-buttons #submit").val("Yes");
-                $(".submit-buttons #cancel").val("No");
+                $(".submit-buttons .submit").val("Yes");
+                $(".submit-buttons .cancel").val("No");
             } else {
                 saveData(saveName);
             }

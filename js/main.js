@@ -1033,61 +1033,55 @@ function render_map() {
     }
 } google.maps.event.addDomListener(window, 'load', render_map);
 
-//function add_marker(lat, lon, name, markerType, markerUrl){
-    function add_marker(markerData){
-
+function add_marker(markerData){
+      var maxIndex = google.maps.Marker.MAX_ZINDEX;
       var id= markerData.id;
       var marker = new MarkerWithLabel({
-        position: new google.maps.LatLng(markerData.lat,markerData.lon),
-        draggable: false,
-        raiseOnDrag: false,
-        map: TRP.map,
-        labelContent: markerData.name,
-        labelAnchor: new google.maps.Point(22, 0),
-        labelClass: "labels "+id, // the CSS class for the label
-        labelStyle: {opacity: 0.75},
-        url: "#id-"+id
-     });
+            position: new google.maps.LatLng(markerData.lat,markerData.lon),
+            draggable: false,
+            raiseOnDrag: false,
+            map: TRP.map,
+            labelContent: markerData.name,
+            labelAnchor: new google.maps.Point(22, 0),
+            labelClass: "labels "+id, // the CSS class for the label
+            labelStyle: {opacity: 0.75},
+            url: "#id-"+id
+        });
       if (TRP.currentItinerary.eventHash[id]){
         setmarkerType(marker, "red-pushpin", null);
       }
       else{
         setMarkerType(marker,markerData.iconType, markerData.iconUrl);
       }  
-    var maxIndex = google.maps.Marker.MAX_ZINDEX;
        marker.infoWindow = new google.maps.InfoWindow({
        content:markerData.toHTML()
     });
-    //should the infoWindow be kept open?
     google.maps.event.addListener(marker, 'click', function() {
-    marker.infoWindow.open(TRP.map,marker);
-    $(".reference .venue").removeClass("active");
-    $(".id-"+id).addClass("active");
-    maxIndex++;
-    //don't know if we want this
-    marker.setZIndex(maxIndex);
-    window.location.href = marker.url;
-    //animate not working
-    //$("article").animate({ scrollTop: $('#id-4c13897db7b9c92822a6a937').offset().top }, 1000);
-  });
+        for (var markers in TRP.markersMap){
+         TRP.markersMap[markers].infoWindow.close(null);
+        }
+        marker.infoWindow.open(TRP.map,marker);
+        $(".reference .venue").removeClass("active");
+        $(".id-"+id).addClass("active");
+        maxIndex++;
+        marker.setZIndex(maxIndex);
+        window.location.href = marker.url;
+    });
     google.maps.event.addListener(marker, 'mouseover', function(){
         maxIndex++;
-        //don't know if we want this
         marker.setZIndex(maxIndex);
-      });
-        google.maps.event.addListener(marker, 'mouseover', function(){
-            maxIndex++;
-            //don't know if we want this
+    });
+    google.maps.event.addListener(marker, 'mouseout', function(){
+            maxIndex--;
             marker.setZIndex(maxIndex);
-        })
-        TRP.markersMap[id]=marker;
+    });
+    TRP.markersMap[id]=marker;
 }
 
 function placeSearchResults(results){
 
     var keysArray = results;
-
-    TRP.map.setZoom(16);
+    TRP.map.setZoom(15);
 
     clearMarkers();
     add_marker(TRP.markerInit);

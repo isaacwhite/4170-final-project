@@ -760,13 +760,19 @@ $( function () {
         if(!($.isEmptyObject(data.itineraries))) {
             
             TRP.lightboxControl("welcome");
+        } else {
+            $(".welcome-contain p").each(function() {
+                $(this).remove();
+            })
+            $(".welcome-contain").append("<p><a href='#'>Click here to get started</a>.</p>");
+            TRP.lightboxControl("welcome");
         }
         
         //we need a check here based on whether itineraries is empty or not.
     // }
     });
 
-    $(".welcome-contain a").click(function(e) {
+    $(document).on('click','.welcome-contain a',function(e) {
         var linkClick = $(this).text();
 
         if(linkClick === "create a new itinerary") {
@@ -780,8 +786,13 @@ $( function () {
                 TRP.lightboxControl("load");
             });
         } else {
+            //TODO Show the help intro
             console.log("HELP MEEEEEE!!!");
-        }
+            TRP.lightboxControl("welcome",function() {
+                TRP.lightboxControl("image");
+                TRP.lightboxControl("lightbox");
+            });
+        } 
         // console.log(linkClick);
         e.preventDefault();
     })

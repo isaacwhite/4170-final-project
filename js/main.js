@@ -664,6 +664,7 @@ TRP.SearchObject.fn.pageBackward = function () {
         this.searchPages[lastPage].pageHTML = pageHTML;
         $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
         var displayed = this.searchPages[this.currentPage].pages;
+        console.log(displayed);
         placeSearchResults(displayed);
     }
 }
@@ -820,7 +821,7 @@ TRP.getLoadHTML = function () {
     htmlString += "<h2>Load a saved itinerary</h2>"
     htmlString += "<ul class='itineraries'>"
     for (var i = 0; i < itineraries.length; i++) {
-        htmlString += "<li><a href='#'>" + itineraries[i] + "</a></li>";
+        htmlString += "<li><a href='#'>" + itineraries[i] + "</a><a class='delete' href='#'>Delete</a></li>";
     }
     htmlString += "</ul>";
     htmlString += "</div>";

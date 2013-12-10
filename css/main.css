@@ -450,7 +450,9 @@ footer {
     display:none;
 }
 .save-form form:after,
-.itinerary .leg:after {
+.itinerary .leg:after,
+.load-box .itineraries:after,
+.load-box li:after {
   content: "";
   display: table;
   clear: both;
@@ -545,22 +547,27 @@ footer {
 
 .load-box li {
     display: block;
+    padding: 0 .5rem;
 }
 .load-box a {
-    text-decoration: none;
+    width: 60%;
     padding: .25rem .5rem;
-    line-height: 2.25;
-    border-radius: .25rem;
     color: black;
-    border: 1px #d7d7d7 solid;
+    float:left;
 }
-.load-box .itineraries {
-    text-align: center;
+
+.load-box a.delete {
+    float:right;
+    width: 30%;
+    clear: right;
 }
 .load-box a:hover {
     background-color: black;
     color: white;
     border: none;
+}
+.itineraries li:nth-child(even) {
+    background-color: #d7d7d7;
 }
 .lightbox {
     height: 100%;
@@ -614,4 +621,8 @@ footer {
 .leg.last .connector {
     display: block;
     float: none;
+}
+
+.load-box .itineraries {
+    border: 1px solid #d7d7d7;
 }

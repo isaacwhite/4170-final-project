@@ -222,20 +222,24 @@ TRP.toggleSearchBox = function () {
         if(!TRP.animating) {
             TRP.animating = true;
             var height = TRP.searchHandler.calcHeight();
-
-            $(".search-form").animate({'height':height},400,function () {
-                $(this).css({'padding-bottom':'4em'});
-                $(".exit").animate({'opacity':1},250, function () {
-                    TRP.animating = false;
-                    TRP.searchOpen = true;
+            $("article").scrollTo(0,function() {
+                $(this).css({'overflow':'hidden'});
+                $(".search-form").animate({'height':height},400,function () {
+                    $(this).css({'padding-bottom':'4em'});
+                    $(".exit").animate({'opacity':1},250, function () {
+                        TRP.animating = false;
+                        TRP.searchOpen = true;
+                    });
                 });
             });
+
         } //no else, just pretend it wasn't requested.
     } else {
         if(!TRP.animating) {
             TRP.animating = true;
             $(".exit").animate({'opacity':0},200,function () {
                 $(".search-form").css({'padding-bottom':0}).animate({'height':'0px'},400, function () {
+                    $("article").css({'overflow-y':'auto'});
                     $(".search-form .venue").each(function() {
                         $(this).remove();
                     })
@@ -1132,6 +1136,16 @@ $( function () {
                 $(this).append(TRP.locHTML);
                 $(this).animate({'max-height':'1000px'},500);
             })
+        }
+        e.preventDefault();
+    })
+    $(document).on('h1.title','click', function(e) {
+        if ($(".welcome").hasClass("visible")) {
+            //don't do anything;
+        } else {
+            TRP.lightboxControl("image",function() {
+                TRP.lightboxControl("welcome");
+            });
         }
         e.preventDefault();
     })

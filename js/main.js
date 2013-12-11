@@ -1112,6 +1112,19 @@ $( function () {
     $(document).on('click','.location-form .submit-buttons input', function(e) {
         if($(this).val() === "Save") {
             console.log("change the search value");
+            var searchQuery = $("#addr-save").val();
+            var locationName = $("#loc-name").val();
+            if(locationName === "") {
+                locationName = searchQuery;
+            }
+            TRP.getMapCenter(searchQuery, function() {
+                    console.log("Map center changed!");
+                    $(".venue.start").animate({'max-height':'0px'},500, function(e) {
+                        $(this).find(".location-form").remove();
+                        $(this).append("<h4>" + locationName + "</h4>");
+                        $(this).animate({'max-height':'1000px'},500);
+                    });
+            });
         } else {
             console.log("put it back");
             $(this).closest(".venue").animate({'max-height':'0px'},500, function(e) {
@@ -1237,7 +1250,7 @@ function listItinerary(){
 }
 //Google Maps functions
 //sets map intially when it loads
-function render_map() {
+function render_map(geolocate) {
     var mapOptions = {
         zoom: 11,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -1246,31 +1259,35 @@ function render_map() {
       TRP.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
       // Try HTML5 geolocation
-    if(navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-          TRP.currLoc.lat=position.coords.latitude;
-          TRP.currLoc.lon= position.coords.longitude;
-          lat = TRP.currLoc.lat;
-          lon = TRP.currLoc.lon;
-          var initial_loc = new google.maps.LatLng(lat, lon);
-          var markerData = {
-                'lat': lat,
-                'lon': lon,
-                'name': 'Your current location',
-                'id' : 1111,
-                'iconType': 'blue-dot',
-                'iconUrl': null
+    if(geolocate!==false) {
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+              TRP.currLoc.lat=position.coords.latitude;
+              TRP.currLoc.lon= position.coords.longitude;
+              lat = TRP.currLoc.lat;
+              lon = TRP.currLoc.lon;
+              var initial_loc = new google.maps.LatLng(lat, lon);
+              var markerData = {
+                    'lat': lat,
+                    'lon': lon,
+                    'name': 'Your current location',
+                    'id' : 1111,
+                    'iconType': 'blue-dot',
+                    'iconUrl': null
+              }
+              TRP.markerInit= new TRP.Marker(markerData);
+              add_marker(TRP.markerInit);
+              TRP.map.setCenter(initial_loc);
+            }, function() {
+              geolocationErr();
+            });
+        } else {
+            // Browser doesn't support Geolocation
+            geolocationErr();
           }
-          TRP.markerInit= new TRP.Marker(markerData);
-          add_marker(TRP.markerInit);
-          TRP.map.setCenter(initial_loc);
-        }, function() {
-          geolocationErr();
-        });
     } else {
-        // Browser doesn't support Geolocation
         geolocationErr();
-      }
+    }
       //set to default if geolocation fails
     function geolocationErr() {
        var lon=TRP.currLoc.lon;
@@ -1449,6 +1466,25 @@ function setMarkerType(marker, markerType, markerUrl){
             marker.setIcon('https://maps.gstatic.com/mapfiles/ms2/micons/yellow.png');
     }    
 
+}
+
+TRP.getMapCenter = function (queryString,callback) {
+  $.getJSON("http://maps.googleapis.com/maps/api/geocode/json?address="+queryString+"&sensor=true", function(data){
+    function processData(data) {
+        var lat = data.results[0].geometry.location.lat;
+        var lon = data.results[0].geometry.location.lng;
+
+        TRP.currLoc.lat = lat;
+        TRP.currLoc.lon = lon;
+    }
+
+    processData(data);
+    $("#map-canvas").remove();
+    $(".map-region").append("<div id='map-canvas'></div>");
+    console.log("are we here yet?");
+    callback();
+    render_map(false);
+  });
 }
 //modified map styles from http://snazzymaps.com/style/19/subtle
 var styledMap=

@@ -20,6 +20,7 @@ TRP.directionsDisplay = new google.maps.DirectionsRenderer();
 TRP.directionsService = new google.maps.DirectionsService();
 TRP.deleteConfirm = "<div class='delete-confirm'><h4>Are you sure you want to delete this itinerary?<br>This operation cannot be undone.</h4><div class='confirm-buttons'><input type='submit' value='Yes' class='submit'><input type='button' value='No' class='cancel'></div></div>";
 TRP.changeLocationForm = "<div class='location-form'><form><input type='text' name='name-field' placeholder='The name of your location' id='loc-name'><input type='text' name='address-field' placeholder='Your location&#39;s address' id='addr-save'><div class='submit-buttons'><input type='submit' value='Save' class='submit'><input type='button' value='Cancel' class='cancel'></div></form></div>";
+TRP.startName = "Your Current Location";
 //an object to manage actions related to viewing search results
 TRP.SearchObject = function () {
     this.resultCount = 0;
@@ -243,6 +244,7 @@ TRP.toggleSearchBox = function () {
                     $(".search-form .venue").each(function() {
                         $(this).remove();
                     })
+                    $(".search-form .paging-container").remove();
                     $("#search-box").val("");
                     TRP.animating = false;
                     TRP.searchOpen = false;
@@ -713,7 +715,7 @@ TRP.Itinerary.fn.toHTML = function() {
 
     for(var i = 0; i < this.orderArray.length; i++) {
         if (i === 0) {
-            htmlString += "<div class='venue'><h2 class='label'>A</h2><h4>Your Current Location</h4></div>";
+            htmlString += "<div class='venue'><h2 class='label'>A</h2><h4>" + TRP.startName +"</h4></div>";
             htmlString += legToHTML(this.mapsData.directions[0],0);
         }
 
@@ -1121,6 +1123,7 @@ $( function () {
             if(locationName === "") {
                 locationName = searchQuery;
             }
+            TRP.startName = locationName;
             TRP.getMapCenter(searchQuery, function() {
                     console.log("Map center changed!");
                     $(".venue.start").animate({'max-height':'0px'},500, function(e) {
@@ -1139,11 +1142,13 @@ $( function () {
         }
         e.preventDefault();
     })
-    $(document).on('h1.title','click', function(e) {
+    $('h1.title').click(function(e) {
+        console.log("clicked!");
         if ($(".welcome").hasClass("visible")) {
             //don't do anything;
         } else {
-            TRP.lightboxControl("image",function() {
+            TRP.lightboxControl("lightbox",function() {
+                TRP.lightboxControl("image");
                 TRP.lightboxControl("welcome");
             });
         }

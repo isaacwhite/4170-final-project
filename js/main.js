@@ -530,21 +530,12 @@ TRP.SearchObject.fn.ingestData = function (data) {
         pagingHTML+="<li><a class='page-backward pure-button prev' href='#'>&#171;</a></li>";
         pagingHTML+="<li><a class='page-number pure-button pure-button-active' href='#'> Page "+viewPage+" of "+TRP.searchHandler.searchPages.length+" </a></li>";
         pagingHTML+="<li><a class='page-forward pure-button next' href='#'>&#187;</a></li> </ul>";
-        $(".reference").append(pagingHTML);
-         $(".page-forward").click(function (e) {
-               TRP.searchHandler.pageForward();
-             e.preventDefault();
-           });
-         $(".page-backward").click(function (e) {
-               TRP.searchHandler.pageBackward();
-             e.preventDefault();
-           });
-         $(".page-number").click(function (e) {
-            e.preventDefault();
-         })
+         
     }
     $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
-
+    if(pagingHTML) {
+        $(".reference").append(pagingHTML);
+    }
     this.offset = 0;
     //place search results on map
     var displayed = this.searchPages[this.currentPage].pages;
@@ -881,6 +872,17 @@ $( function () {
         }
     });
 
+    $(document).on("click",".page-forward",function (e) {
+               TRP.searchHandler.pageForward();
+             e.preventDefault();
+           });
+     $(document).on("click",".page-backward",function (e) {
+               TRP.searchHandler.pageBackward();
+             e.preventDefault();
+           });
+    $(document).on("click","page-number",function (e) {
+            e.preventDefault();
+    })
     //event handler for initial welcome links
     $(document).on('click','.welcome-contain a',function(e) {
         var linkClick = $(this).text();

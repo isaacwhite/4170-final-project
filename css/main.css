@@ -26,6 +26,9 @@ body {
     color: white;
     line-height: 1.4;
 }
+h1.title:hover {
+    cursor: pointer;
+}
 .help a {
     color: white;
 }
@@ -64,6 +67,8 @@ body {
     float: left;
     margin: 0;
     font-style: italic;
+    position: relative;
+    z-index: 10;
 }
 .header-container nav {
     float: left;
@@ -703,4 +708,34 @@ footer {
 #addr-save {
     width: 100%;
     margin-bottom: 1rem;
+}
+
+#map-canvas .infoWinTitle {
+    font-weight: bold;
+    font-size: 1.25rem;
+    text-align: left;
+}
+.infoWinBody {
+    display: none;
+}
+.infoWinAddress {
+    margin-top: .5rem;
+    text-align: left;
+}
+#map-canvas .info-add-venue {
+    display: block;
+    color: white;
+    background-color: black;
+    width: auto;
+    margin-top: 1rem;
+    height: 2rem;
+    transition: .25s all;
+    font-size: 1.5rem;
+    border: 1px solid black;
+}
+#map-canvas .info-add-venue:hover {
+    background-color: #d7d7d7;
+    border: 1px solid black;
+    color: black;
+    cursor: pointer;
 }

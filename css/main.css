@@ -17,6 +17,21 @@ body {
     z-index: 12;
     background-color: black;
 }
+.help {
+    z-index: 13;
+    position: relative;
+    background-image: url(../img/black_60.png);
+    padding: 4rem 20%;
+    overflow-y: auto;
+    color: white;
+    line-height: 1.4;
+}
+h1.title:hover {
+    cursor: pointer;
+}
+.help a {
+    color: white;
+}
 .welcome-contain {
     display: none;
     margin: 10% auto;
@@ -37,17 +52,14 @@ body {
     color:white;
     width: 100%;
     padding: 1rem 1rem 1rem 2rem;
-background: #45484d; /* Old browsers */
-background: -moz-linear-gradient(top,  #45484d 0%, #000000 100%); /* FF3.6+ */
-background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000)); /* Chrome,Safari4+ */
-background: -webkit-linear-gradient(top,  #45484d 0%,#000000 100%); /* Chrome10+,Safari5.1+ */
-background: -o-linear-gradient(top,  #45484d 0%,#000000 100%); /* Opera 11.10+ */
-background: -ms-linear-gradient(top,  #45484d 0%,#000000 100%); /* IE10+ */
-background: linear-gradient(to bottom,  #45484d 0%,#000000 100%); /* W3C */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
-
-
-
+    background: #45484d; /* Old browsers */
+    background: -moz-linear-gradient(top,  #45484d 0%, #000000 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #45484d 0%,#000000 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #45484d 0%,#000000 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #45484d 0%,#000000 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #45484d 0%,#000000 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
 }
 
 .header-container h1 {
@@ -55,6 +67,8 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', end
     float: left;
     margin: 0;
     font-style: italic;
+    position: relative;
+    z-index: 10;
 }
 .header-container nav {
     float: left;
@@ -450,13 +464,15 @@ footer {
     width: 100%;
     display:none;
 }
-.save-form {
+.save-form,
+.help {
     display:none;
 }
 .save-form form:after,
 .itinerary .leg:after,
 .load-box .itineraries:after,
-.load-box li:after {
+.load-box li:after,
+.confirm-buttons:after {
   content: "";
   display: table;
   clear: both;
@@ -495,7 +511,8 @@ footer {
     height: 100%;
     width: 100%;
 }
-.submit-buttons input {
+.submit-buttons input,
+.confirm-buttons input {
     display: block;
     float:left;
     -webkit-appearance: inherit;
@@ -516,15 +533,18 @@ footer {
     -ms-user-select: none;
     user-select: none;
 }
-.submit-buttons input:hover {
+.submit-buttons input:hover,
+.confirm-buttons input:hover {
     cursor: pointer;
     opacity: 1;
 }
-.submit-buttons #submit {
+.submit-buttons .submit,
+.confirm-buttons .submit {
     background-color: rgb(38, 85, 42);
     margin-right: 5%;
 }
-.submit-buttons #cancel {
+.submit-buttons .cancel,
+.confirm-buttons .cancel {
     background-color: rgb(134, 6, 6);
 }
 
@@ -551,24 +571,28 @@ footer {
 
 .load-box li {
     display: block;
-    padding: 0 .5rem;
-}
+ }
 .load-box a {
-    width: 60%;
+    width: 80%;
     padding: .25rem .5rem;
     color: black;
     float:left;
+    padding-left: 1rem;
 }
 
 .load-box a.delete {
     float:right;
-    width: 30%;
+    width: 20%;
     clear: right;
+    padding-left:.5rem;
 }
 .load-box a:hover {
     background-color: black;
     color: white;
     border: none;
+}
+.load-box a.delete:hover {
+    background-color: rgb(134, 6, 6);
 }
 .itineraries li:nth-child(even) {
     background-color: #d7d7d7;
@@ -579,6 +603,7 @@ footer {
     z-index: 10;
     width: 100%;
     background-image: url(../img/black_60.png);
+    overflow-y: auto;
 }
 .itinerary .venue.draggable:hover {
     cursor: url(../img/openhand.cur) 4 4, move;
@@ -586,8 +611,6 @@ footer {
 .itinerary .venue.draggable {
     overflow: hidden;
 }
-
-
 [draggable] {
   -moz-user-select: none;
   -khtml-user-select: none;
@@ -598,7 +621,8 @@ footer {
   -webkit-user-drag: element;
 }
 
-.venue h2.label {
+.venue h2.label,
+.venue h2.trash {
     position: absolute;
     top: 0;
     left: 0;
@@ -608,6 +632,17 @@ footer {
     border-radius: 0 0 .25rem;
     margin: 0;
     font-size: .925rem;
+}
+
+.venue h2.trash {
+    left: auto;
+    right: 0;
+    transition: all .25s;
+}
+.venue h2.trash:hover {
+    cursor: pointer;
+    background-color: rgb(255,23,23);
+    font-size: 1.5rem;
 }
 
 .pure-paginator, .pure-paginator * {
@@ -629,4 +664,78 @@ footer {
 
 .load-box .itineraries {
     border: 1px solid #d7d7d7;
+}
+.delete-confirm {
+    text-align:center;
+    margin-top: 2rem;
+    overflow:hidden;
+}
+
+.confirm-buttons {
+    margin: 1rem;
+}
+
+.load-box h4 .cancel {
+    display: block;
+    text-decoration: none;
+    padding: .5rem;
+    border: 1px solid #d7d7d7;
+    border-radius: .125rem;
+    width: 30%;
+    text-align: center;
+    margin: 0 auto;
+    float: none;
+}
+.load-box h4 {
+    display: block;
+    text-align: center;
+    margin-bottom: 0;
+}
+.start h4 {
+    margin: .67rem 0;
+}
+.start h5 {
+    font-style: italic;
+    margin: .75rem 0 .75rem;
+}
+.start a {
+    color: #a0a0a0;
+}
+#loc-name {
+    width: 100%;
+    margin-bottom: .5rem;
+}
+#addr-save {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+#map-canvas .infoWinTitle {
+    font-weight: bold;
+    font-size: 1.25rem;
+    text-align: left;
+}
+.infoWinBody {
+    display: none;
+}
+.infoWinAddress {
+    margin-top: .5rem;
+    text-align: left;
+}
+#map-canvas .info-add-venue {
+    display: block;
+    color: white;
+    background-color: black;
+    width: auto;
+    margin-top: 1rem;
+    height: 2rem;
+    transition: .25s all;
+    font-size: 1.5rem;
+    border: 1px solid black;
+}
+#map-canvas .info-add-venue:hover {
+    background-color: #d7d7d7;
+    border: 1px solid black;
+    color: black;
+    cursor: pointer;
 }

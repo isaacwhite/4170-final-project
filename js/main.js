@@ -1321,7 +1321,7 @@ function render_map(geolocate) {
           var markerData = {
                 'lat': lat,
                 'lon': lon,
-                'name': 'Default NYC location',
+                'name': 'Your starting point',
                 'id' : 1111,
                 'iconType': 'blue-dot',
                 'iconUrl': null

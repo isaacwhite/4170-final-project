@@ -159,9 +159,11 @@ TRP.getSuggestions = function (param) {
         return returnObj;
     }
     function processCategory(category){
+       // console.log("HELLO");
+       // console.log(category);
         if(category) {
             var name = category.name;
-            var iconUrl = category.icon.prefix+"bg_32"+category.icon.suffix; 
+            var iconUrl = category.icon; 
             var id = category.id;
         }
         var returnObj = {
@@ -997,30 +999,10 @@ $( function () {
         var mapID = venueObj[0].classList[1];
         var markerID=mapID.substring(3);
         var activeMarker= TRP.markersMap[markerID];
-        var lat=activeMarker.position.nb;
-        var lon=activeMarker.position.ob;
-        setMarkerType(activeMarker, "red-pushpin",null);
-        TRP.map.panTo(new google.maps.LatLng(lat, lon));
-        (activeMarker.setAnimation(google.maps.Animation.BOUNCE));
-        setTimeout(function(){ activeMarker.setAnimation(null); }, 1400);
-
-        mapID = mapID.substring(3);
-        curItin.addEvent(TRP.venueMap[mapID]);
-        venueObj.addClass("added");
-        venueObj.prepend(TRP.addedObject);
-        $(".labels").removeClass("active");
-        $(".labels."+mapID).addClass("active");
-        e.stopPropagation();
-    });
-    $(document).on('click', '.venue .info-add-venue', function (e) { // Make your changes here
-        var curItin = TRP.currentItinerary;
-        var venueObj = $(this).closest(".venue");
-        var mapID = venueObj[0].classList[1];
-        var markerID=mapID.substring(3);
-        var activeMarker= TRP.markersMap[markerID];
-        var lat=activeMarker.position.nb;
-        var lon=activeMarker.position.ob;
-        setMarkerType(activeMarker, "red-pushpin",null);
+        console.log(activeMarker);
+         var lat=activeMarker.position.d;
+         var lon=activeMarker.position.e;
+         setMarkerType(activeMarker, "red-pushpin",null);
         TRP.map.panTo(new google.maps.LatLng(lat, lon));
         (activeMarker.setAnimation(google.maps.Animation.BOUNCE));
         setTimeout(function(){ activeMarker.setAnimation(null); }, 1400);
@@ -1054,8 +1036,8 @@ $( function () {
         var mapID = venueObj[0].classList[1];
         mapID = mapID.substring(3);
         var activeMarker= TRP.markersMap[mapID];
-        var lat=activeMarker.position.nb;
-        var lon=activeMarker.position.ob;
+        var lat=activeMarker.position.d;
+        var lon=activeMarker.position.e;
         TRP.map.panTo(new google.maps.LatLng(lat, lon));
         (activeMarker.setAnimation(google.maps.Animation.BOUNCE));
         setTimeout(function(){ activeMarker.setAnimation(null); }, 1400);
@@ -1384,12 +1366,12 @@ function placeSearchResults(results){
 
     var keysArray = results;
     TRP.map.setZoom(12);
-
     clearMarkers();
     add_marker(TRP.markerInit);
     for (var i in keysArray){
         var key = keysArray[i];
         var locationObj = TRP.venueMap[key];
+        console.log(locationObj);
         var markerData = {
             'lat': locationObj.coord.lat,
             'lon': locationObj.coord.lon,

@@ -535,10 +535,10 @@ TRP.SearchObject.fn.ingestData = function (data) {
         pagingHTML+="<li><a class='page-forward pure-button next' href='#'>&#187;</a></li> </ul>";
          
     }
-    $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
     if(pagingHTML) {
         $(".reference").append(pagingHTML);
     }
+    $(".search-form .reference").append(this.searchPages[this.currentPage].pageHTML);
     this.offset = 0;
     //place search results on map
     var displayed = this.searchPages[this.currentPage].pages;
@@ -1016,6 +1016,31 @@ $( function () {
         e.stopPropagation();
     });
 
+        $(document).on('click', '.venue .info-add-venue', function (e) { // Make your changes here
+        var curItin = TRP.currentItinerary;
+        var venueObj = $(this).closest(".venue");
+        var mapID = venueObj[0].classList[1];
+        var markerID=mapID.substring(3);
+        var activeMarker= TRP.markersMap[markerID];
+        console.log(activeMarker);
+         var lat=activeMarker.position.d;
+         var lon=activeMarker.position.e;
+         setMarkerType(activeMarker, "red-pushpin",null);
+        TRP.map.panTo(new google.maps.LatLng(lat, lon));
+        (activeMarker.setAnimation(google.maps.Animation.BOUNCE));
+        setTimeout(function(){ activeMarker.setAnimation(null); }, 1400);
+
+        mapID = mapID.substring(3);
+        curItin.addEvent(TRP.venueMap[mapID]);
+        venueObj.addClass("added");
+        venueObj.prepend(TRP.addedObject);
+        $(".venue.id-"+mapID).addClass("added");
+        $(".venue.id-"+mapID).prepend(TRP.addedObject);
+        $(".labels").removeClass("active");
+        $(".labels."+mapID).addClass("active");
+        e.stopPropagation();
+    });
+
     //a function to remove the newly added item from the itnerary
     $(document).on('click', '.venue .added-label h4', function(e) { // Make your changes here
         var curItin = TRP.currentItinerary;
@@ -1256,7 +1281,7 @@ function listItinerary(){
 //sets map intially when it loads
 function render_map(geolocate) {
     var mapOptions = {
-        zoom: 11,
+        zoom: 12,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         styles:styledMap
       };
@@ -1365,7 +1390,7 @@ function add_marker(markerData){
 function placeSearchResults(results){
 
     var keysArray = results;
-    TRP.map.setZoom(12);
+    TRP.map.setZoom(14);
     clearMarkers();
     add_marker(TRP.markerInit);
     for (var i in keysArray){
@@ -1494,150 +1519,107 @@ TRP.getMapCenter = function (queryString,callback) {
 var styledMap=
 [
     {
+        "featureType": "administrative",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "on"
+            },
+            {
+                "saturation": -100
+            },
+            {
+                "lightness": 20
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "on"
+            },
+            {
+                "saturation": -100
+            },
+            {
+                "lightness": 40
+            }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "on"
+            },
+            {
+                "saturation": -10
+            },
+            {
+                "lightness": 30
+            }
+        ]
+    },
+    {
+        "featureType": "landscape.man_made",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            },
+            {
+                "saturation": -60
+            },
+            {
+                "lightness": 10
+            }
+        ]
+    },
+    {
+        "featureType": "landscape.natural",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            },
+            {
+                "saturation": -60
+            },
+            {
+                "lightness": 60
+            }
+        ]
+    },
+    {
         "featureType": "poi",
+        "elementType": "all",
         "stylers": [
             {
                 "visibility": "off"
+            },
+            {
+                "saturation": -100
+            },
+            {
+                "lightness": 60
             }
         ]
     },
     {
-        "stylers": [
-            {
-                "saturation": -70
-            },
-            {
-                "lightness": 37
-            },
-            {
-                "gamma": 1.15
-            }
-        ]
-    },
-    {
-        "elementType": "labels",
-        "stylers": [
-            {
-                "gamma": 0.26
-            },
-            {
-                "visibility": "on"
-            }
-        ]
-    },
-    {
-        "featureType": "road",
-        "stylers": [
-            {
-                "lightness": 0
-            },
-            {
-                "saturation": 0
-            },
-            {
-                "hue": "#ffffff"
-            },
-            {
-                "gamma": 0
-            }
-        ]
-    },
-    {
-        "featureType": "road",
-        "elementType": "labels.text.stroke",
-        "stylers": [
-            {
-                "visibility": "simplified"
-            }
-        ]
-    },
-    {
-        "featureType": "road.arterial",
-        "elementType": "geometry",
-        "stylers": [
-            {
-                "lightness": 20
-            }
-        ]
-    },
-    {
-        "featureType": "road.highway",
-        "elementType": "geometry",
-        "stylers": [
-            {
-                "lightness": 50
-            },
-            {
-                "saturation": 0
-            },
-            {
-                "hue": "#ffffff"
-            }
-        ]
-    },
-    {
-        "featureType": "administrative.province",
-        "stylers": [
-            {
-                "visibility": "on"
-            },
-            {
-                "lightness": -50
-            }
-        ]
-    },
-    {
-        "featureType": "administrative.province",
-        "elementType": "labels.text.stroke",
+        "featureType": "transit",
+        "elementType": "all",
         "stylers": [
             {
                 "visibility": "off"
-            }
-        ]
-    },
-     {
-         "featureType": "poi.business",
-         "elementType": "labels.text",
-        "stylers": [
+            },
             {
-                "visibility": "off"
-            }
-        ]
-    },
-    {
-        "featureType": "poi.business",
-        "elementType": "labels.icon",
-        "stylers": [
+                "saturation": -100
+            },
             {
-                "visibility": "off"
-            }
-        ]
-    },
-    {
-        "featureType": "poi.place_of_worship",
-        "elementType": "labels.text",
-        "stylers": [
-            {
-                "visibility": "off"
-            }
-        ]
-    },
-    {
-        "featureType": "poi.place_of_worship",
-        "elementType": "labels.icon",
-        "stylers": [
-            {
-                "visibility": "off"
-            }
-        ]
-    },
-
-    {
-        "featureType": "administrative.province",
-        "elementType": "labels.text",
-        "stylers": [
-            {
-                "lightness": 20
+                "lightness": 60
             }
         ]
     }

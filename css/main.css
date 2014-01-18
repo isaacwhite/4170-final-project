@@ -28,6 +28,7 @@ body {
 }
 h1.title:hover {
     cursor: pointer;
+    color: #ccc;
 }
 .help a {
     color: white;
@@ -116,6 +117,7 @@ h1.title:hover {
     bottom:0;
     right:0;
     width:70%;
+    border-left: 1px solid #ccc;
 }
 .main-container article {
     position:fixed;
@@ -244,7 +246,7 @@ ul {
 .search-form {
     height: 0px;
     position: absolute;
-    background-color: rgb(196, 185, 167);
+    background-color: rgb(160, 160, 160);
     width: 100%;
     top: 0;
     left: 0;
@@ -312,7 +314,7 @@ blockquote {
     position: absolute;
     top: .5rem;
     right: .5rem;
-    border-radius: .5rem;
+/*    border-radius: .5rem;*/
     transition: all .5s;
     -webkit-user-select: none;  /* Chrome all / Safari all */
     -moz-user-select: none;     /* Firefox all */
@@ -349,7 +351,7 @@ blockquote {
     width: 1.5rem;
     height: 1.5rem    ;
     display: block;
-    background-color: rgb(174, 180, 250);
+    background-color: rgb(174, 207, 250);
     content: '+';
     line-height: 1.5rem;
     text-align: center;
@@ -559,7 +561,7 @@ footer {
 }
 
 .reference .venue.active h3{
-    background-color:#4bcbf2;
+    background-color:#E78A9C;
 }
 .load-box {
     height:auto;
